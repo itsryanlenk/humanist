@@ -1,8 +1,12 @@
 # Evaluations
 
-Two studies stand behind this repository's claims. Both are described here in
-enough detail to rebuild, and both are reported with the results that went against
-the hypothesis as well as the ones that supported it.
+Three studies stand behind this repository's claims, roughly 750 blind judgments in
+total. Each is described in enough detail to rebuild, and each is reported with the
+results that went against the hypothesis as well as the ones that supported it.
+
+**Read them in this order:** study 3 is the one that came back positive and is the
+reason the project still exists. Studies 1 and 2 are why it is aimed at editing
+rather than at passing.
 
 - **[detection-sweep-synthesis.md](detection-sweep-synthesis.md)** — the analyst's
   full narrative, including the power analysis, the confound, the discrimination
@@ -15,6 +19,10 @@ the hypothesis as well as the ones that supported it.
 - **[length-test.md](length-test.md)** — study 2. Does a longer document hide a
   generated one? 56 blinded judgments over the same essay presented whole and in
   slices. Also negative, and it bounds its own claim honestly.
+- **[quality-benchmark.md](quality-benchmark.md)** — study 3, and the only one that
+  came back positive. Do editors prefer the processed draft, judging quality alone
+  with authorship never mentioned? Yes, 22 of 22. It also establishes which half of
+  the pipeline earns its keep, and the answer is not both.
 - The false-positive audit that drove the rule recalibration is reproducible
   directly: `python tests/fp_guard.py --report`.
 
@@ -249,3 +257,66 @@ One tell in that study was manufactured by the harness rather than the generator
 the blinding step stripped markdown headings, which left a cross-reference to
 "section II" dangling in a document that no longer had visible sections. All eight
 judges flagged it. It is discounted in the report.
+
+
+---
+
+## Study 3: does the processed draft read better?
+
+The question studies 1 and 2 never asked. Editors were shown two passages on the
+same subject at the same length and asked only **which is the better piece of
+writing**. Authorship was never mentioned, and a contamination scan over all 442
+free-text responses found zero judges reasoning about it.
+
+| contrast | preferred | n | 95% CI | p |
+| --- | --- | --- | --- | --- |
+| raw draft vs **fully processed** | **100%** | 22 | 85.1–100% | 4.8e-7 |
+| raw draft vs **rewrite pass only** | **100%** | 16 | 80.6–100% | 3.1e-5 |
+| rewrite pass vs **full pipeline** | 57% | 21 | 36.5–75.5% | 0.66 |
+
+Every register, every length. In the headline contrast not one trial landed in the
+slight-or-coin-flip band: 18 "clear," 4 "decisive."
+
+### Which half earns its keep
+
+The third row is the finding. **The checker stage emitted its input byte-identical
+in 11 of 18 cells** — it declined to act 61% of the time — and twelve of the
+twenty-one trials in that contrast were judges comparing a file to itself. They
+caught every one and logged it as a coin flip. Restricted to the seven cells where
+the checker actually changes text, the preference is 7 of 9, which cannot be
+separated from chance at that n.
+
+So the rewrite pass carries essentially all of the measured benefit. The checker is
+**not established to help and not established to hurt**. The cheap next measurement
+is named in the report: judge all fourteen trials on the seven changed cells; if the
+77.8% rate holds, n≈11 settles it.
+
+### The dissociation
+
+Processed machine prose beat genuine human prose **18 of 18** on quality — 10
+decisive margins, rubric 87.1 against 64.6, "would keep reading" 97.4% against
+42.9%. The same human passages were identified as human **143 times out of 143** in
+study 1.
+
+On this corpus, "reads as human" and "is good writing" behaved as separable and in
+fact anti-correlated properties. The arm that is perfectly recognizable as human
+loses every quality trial; the arm that is 97.8% recognizable as machine wins them
+all.
+
+**The caveat travels with the claim.** The human arm is *found text* — pre-2021
+Wikipedia Signpost columns, an NSF announcement, the Kubernetes and cloud.gov home
+pages, the ripgrep README, a Portal 2 reception section — matched on register and
+length but **not on subject**, and some of it excerpted out of the document that
+gave it context. The three machine arms are genuinely subject-matched to each other
+(verified: identical opening sentences per cell), so the first two contrasts are
+clean. This one is suggestive, not settled. A judge said as much unprompted: *"That
+anecdote has more genuine discovery in it than anything in the benches piece; it is
+just buried in a section it does not belong to."*
+
+### Limitations
+
+Agent failures cut the run to 54 of 144 planned pairwise trials, so the direction is
+unambiguous but the ceiling is not pinned. Judges and prose come from one model
+family, and an editor model preferring a passage is not a human reader preferring
+it. Twelve trials compared identical files and are excluded from the stage-
+attribution estimate rather than quietly averaged in.

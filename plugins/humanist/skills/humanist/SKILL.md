@@ -1,26 +1,32 @@
 ---
 name: humanist
 description: |
-  Make AI-assisted prose read as though a person wrote it, then check it
-  mechanically. Use when someone wants to humanize a draft, strip AI writing
-  tells, remove AI slop, fix corporate or robotic voice, or check copy before it
-  ships. Trigger phrases include "humanize this", "remove the AI slop", "de-AI my
-  draft", "this reads like ChatGPT wrote it", "make my draft sound like a person",
-  "why does this sound robotic", "clean up the AI voice in this post", "check my
-  copy before it goes live". Runs a three-stage pipeline: a subtractive rewrite
-  pass, a mechanical checker that reports FAIL and WARN counts, and a composition
-  read for the tells no regular expression catches. Also covers quoted sources,
-  web-copy extraction, and calibrating the checker to the author's own published
-  voice. It does NOT detect whether text was AI-generated, and it does not defeat
-  AI-detection services.
+  Improve an AI-assisted draft so it reads better: strip machine residue, cut
+  filler and inflated significance, and report what is left. Use when someone
+  wants to clean up an AI-assisted draft, edit AI output into publishable prose,
+  remove AI slop, fix corporate or robotic voice, tighten a draft before it ships,
+  or asks why their writing sounds generic. Trigger phrases include "clean up this
+  AI draft", "edit this into something publishable", "remove the AI slop", "this
+  reads like ChatGPT wrote it", "why does this sound robotic", "tighten this before
+  it goes live", "make this draft less generic". Runs a rewrite pass, a mechanical
+  checker that reports and never edits, and a composition read for the tells no
+  regular expression catches. Also covers quoted sources, web-copy extraction, and
+  calibrating the checker to the author's own published voice. It does NOT detect
+  whether text was AI-generated, does NOT make writing pass as human, and does NOT
+  defeat AI-detection or watermarking.
 ---
 
-# Humanist: write it human, then check it
+# Humanist: edit the draft, then read it
 
-A rewrite can make a draft sound human. It cannot demonstrate that it did, because
-a rewriting pass can reintroduce the tells it removes and cannot be its own judge.
-So the work splits into a pass that **rewrites**, a checker that **measures**, and
-a read that catches what no regular expression will. Run them in that order.
+**The goal is a better piece of writing, not a disguised one.** In a blind study
+where editors judged quality alone, the processed draft beat the raw draft 22 times
+out of 22. In a separate study, the same processing moved detection of machine
+authorship by no measurable amount. Both of those are true at once, and the first
+is the one worth working for.
+
+So the work splits into a pass that **rewrites**, a checker that **reports**, and a
+read that catches what no regular expression will. Run them in that order, and read
+the note on what each stage is actually known to do.
 
 **Before anything else, name the surface.** Public long-form, internal document,
 short-form social, quotable snippet. The `--lenient` flag, the readability targets
@@ -29,18 +35,30 @@ wrong one produces confident nonsense in both directions.
 
 ## What this does not do
 
-Two non-goals, stated up front because both get asked for and neither is possible
-here.
+Three non-goals. The first two are impossible here; the third was attempted,
+measured, and abandoned.
 
 **It does not detect AI text.** Given a passage, this skill cannot tell you whether
 a machine wrote it. Nothing in the repository does that, the accuracy of tools that
 claim to is poor, and a false accusation is worse than an unanswered question.
 
-**It does not defeat AI detectors.** Statistical watermarking schemes live in word
-choice across a whole passage, not in characters or phrases. Rewriting changes that
-signal incidentally, and no one here can tell you by how much. The goal is prose
-that is genuinely good and genuinely yours. That it also reads as human to a
-skeptical reader is a consequence, not a trick.
+**It does not defeat AI detection or watermarking.** Statistical watermarks live in
+word choice across a whole passage, not in characters or phrases, and no rewrite can
+promise anything about them.
+
+**It does not make prose pass as human, and that was the original goal.** Across
+roughly 700 blind judgments: raw output was identified as machine-written 100% of
+the time and fully processed output 97.8%, a difference smaller than the design
+could resolve. Explicit instructions for "writing more human" fooled 0 of 17 judges.
+Length changed nothing. Genuine human prose was never once misidentified.
+
+The reason is worth carrying into the work: **the pipeline removes the tells it
+encodes and worsens the ones it does not.** AI vocabulary fell from 70 judge
+citations to zero while uniform beat rate rose from 60 to 101. A subtractive rewrite
+makes prose more uniformly well-shaped, and uniform good shape is itself a tell. If
+you want prose that reads as a person's, that comes from the person: the specifics
+only they hold, unevenly distributed, with the rough parts left in. A pipeline cannot
+supply it, and step 3 below is where it has to enter.
 
 ## The pipeline
 
@@ -90,6 +108,14 @@ words is the tell.
 **Exit codes.** 0 clean, 1 FAILs remain, 2 the tool could not do its job. Never
 treat 2 as a verdict; it means the run did not happen.
 
+**What this stage is known to do, honestly.** In a blind quality study the rewrite
+pass beat the raw draft 16 of 16 times. Adding this checker on top of it produced no
+measurable further gain: it changed nothing at all in 11 of 18 cells, and where it
+did act the preference could not be separated from chance. Treat its output as
+**material for the composition read**, which is what it is good for, rather than as
+a stage that improves the draft on its own. Its clean report is not evidence the
+prose is finished.
+
 ### Step 3: the composition read
 
 Five tells are manual forever, because no regular expression catches them without
@@ -109,6 +135,15 @@ lying about its precision. After the checker is clean, read the piece aloud:
 Then check the five laws below at paragraph scale. Drafts scoring zero FAILs have
 still contained tells found only on a read-aloud. **The read makes the final call.**
 The checker exists to make the read cheaper, never to replace it.
+
+**This step carries more weight than the two before it.** The measured tells that
+survive a clean checker run are all rhythmic and structural rather than lexical, and
+`ai-tropes.md` has them under "The rhythm tells" with what to do about each. The
+short version: vary paragraph length so no two land the same number of beats, end
+half your sections flat rather than on an epigram, hedge only where the writer would
+genuinely be unsure, leave one objection standing, and put in the specifics only the
+author has. None of that is checkable by machine, all of it is what a reader
+notices, and the author has to supply it.
 
 ## The five laws
 
@@ -248,7 +283,9 @@ Standing corollaries:
   over the false-positive corpus before they ship.
 - What makes prose attributable is its specifics. Strip them and the line could
   have come from anyone. What cannot be faked is the evidence only you hold: the
-  events you witnessed, the numbers whose denominators you can produce.
+  events you witnessed, the numbers whose denominators you can produce. This is the
+  one input no stage of this pipeline can generate, and the measurements say it is
+  the input that matters most.
 
 ## Companion tool
 
