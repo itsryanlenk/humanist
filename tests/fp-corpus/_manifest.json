@@ -1,0 +1,242 @@
+[
+ {
+  "register": "narrative/essay",
+  "title": "Walden, ch. 2 'Where I Lived, and What I Lived For'",
+  "author": "Henry David Thoreau",
+  "published": "1854",
+  "source": "https://www.gutenberg.org/cache/epub/205/pg205.txt",
+  "slice": "PG body lines 2338-2853",
+  "file": "N01_walden_where-i-lived.md",
+  "words": 6153
+ },
+ {
+  "register": "narrative/essay",
+  "title": "Walden, ch. 3 'Reading'",
+  "author": "Henry David Thoreau",
+  "published": "1854",
+  "source": "https://www.gutenberg.org/cache/epub/205/pg205.txt",
+  "slice": "PG body lines 2854-3178",
+  "file": "N02_walden_reading.md",
+  "words": 3810
+ },
+ {
+  "register": "narrative/essay",
+  "title": "The Souls of Black Folk, ch. I 'Of Our Spiritual Strivings'",
+  "author": "W. E. B. Du Bois",
+  "published": "1903",
+  "source": "https://www.gutenberg.org/cache/epub/408/pg408.txt",
+  "slice": "PG body lines 105-387",
+  "file": "N03_souls_ch1.md",
+  "words": 3052
+ },
+ {
+  "register": "narrative/essay",
+  "title": "The Souls of Black Folk, ch. III 'Of Mr. Booker T. Washington and Others'",
+  "author": "W. E. B. Du Bois",
+  "published": "1903",
+  "source": "https://www.gutenberg.org/cache/epub/408/pg408.txt",
+  "slice": "PG body lines 1108-1580",
+  "file": "N04_souls_ch3.md",
+  "words": 4745
+ },
+ {
+  "register": "narrative/essay",
+  "title": "Political Ideals, ch. I 'Political Ideals'",
+  "author": "Bertrand Russell",
+  "published": "1917",
+  "source": "https://www.gutenberg.org/cache/epub/4776/pg4776.txt",
+  "slice": "PG body lines 506-756",
+  "file": "N05_russell_political-ideals-ch1.md",
+  "words": 2489
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "The People of the Abyss, ch. I 'The Descent'",
+  "author": "Jack London",
+  "published": "1903",
+  "source": "https://www.gutenberg.org/cache/epub/1688/pg1688.txt",
+  "slice": "PG body lines 124-429",
+  "file": "J01_london_abyss-ch1.md",
+  "words": 2744
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "The People of the Abyss, ch. V",
+  "author": "Jack London",
+  "published": "1903",
+  "source": "https://www.gutenberg.org/cache/epub/1688/pg1688.txt",
+  "slice": "PG body lines 980-1180",
+  "file": "J02_london_abyss-ch5.md",
+  "words": 1743
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "Ten Days That Shook the World, ch. I 'Background'",
+  "author": "John Reed",
+  "published": "1919",
+  "source": "https://www.gutenberg.org/cache/epub/3076/pg3076.txt",
+  "slice": "PG body lines 639-1151",
+  "file": "J03_reed_ten-days-ch1.md",
+  "words": 4588
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 2119: Key words for use in RFCs to Indicate Requirement Levels",
+  "author": "S. Bradner",
+  "published": "1997-03",
+  "source": "https://www.rfc-editor.org/rfc/rfc2119.txt",
+  "slice": "cleaned lines 35-163",
+  "file": "T01_rfc2119.md",
+  "words": 436
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 1925: The Twelve Networking Truths",
+  "author": "R. Callon (ed.)",
+  "published": "1996-04",
+  "source": "https://www.rfc-editor.org/rfc/rfc1925.txt",
+  "slice": "cleaned lines 33-111",
+  "file": "T02_rfc1925.md",
+  "words": 342
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 1958: Architectural Principles of the Internet",
+  "author": "B. Carpenter (ed.), IAB",
+  "published": "1996-06",
+  "source": "https://www.rfc-editor.org/rfc/rfc1958.txt",
+  "slice": "cleaned lines 41-335",
+  "file": "T03_rfc1958.md",
+  "words": 1939
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 1087: Ethics and the Internet",
+  "author": "Internet Activities Board",
+  "published": "1989-01",
+  "source": "https://www.rfc-editor.org/rfc/rfc1087.txt",
+  "slice": "cleaned lines 17-109",
+  "file": "T04_rfc1087.md",
+  "words": 543
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 1855: Netiquette Guidelines (secs 1-3)",
+  "author": "S. Hambridge",
+  "published": "1995-10",
+  "source": "https://www.rfc-editor.org/rfc/rfc1855.txt",
+  "slice": "cleaned lines 41-80",
+  "file": "T05_rfc1855.md",
+  "words": 295
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 3439: Some Internet Architectural Guidelines and Philosophy (secs 2-4)",
+  "author": "R. Bush, D. Meyer",
+  "published": "2002-12",
+  "source": "https://www.rfc-editor.org/rfc/rfc3439.txt",
+  "slice": "cleaned lines 111-670",
+  "file": "T06_rfc3439.md",
+  "words": 3787
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 7231: HTTP/1.1 Semantics and Content (secs 1-3)",
+  "author": "R. Fielding, J. Reschke (eds.)",
+  "published": "2014-06",
+  "source": "https://www.rfc-editor.org/rfc/rfc7231.txt",
+  "slice": "cleaned lines 270-1073",
+  "file": "T07_rfc7231.md",
+  "words": 5041
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 793: Transmission Control Protocol (secs 1-2)",
+  "author": "J. Postel / DARPA",
+  "published": "1981-09",
+  "source": "https://www.rfc-editor.org/rfc/rfc793.txt",
+  "slice": "cleaned lines 240-1030",
+  "file": "T08_rfc793.md",
+  "words": 4049
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 8446: TLS 1.3 (secs 1-2)",
+  "author": "E. Rescorla",
+  "published": "2018-08",
+  "source": "https://www.rfc-editor.org/rfc/rfc8446.txt",
+  "slice": "cleaned lines 270-694",
+  "file": "T10_rfc8446.md",
+  "words": 1910
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 6749: The OAuth 2.0 Authorization Framework (secs 1-2)",
+  "author": "D. Hardt (ed.)",
+  "published": "2012-10",
+  "source": "https://www.rfc-editor.org/rfc/rfc6749.txt",
+  "slice": "cleaned lines 186-906",
+  "file": "T11_rfc6749.md",
+  "words": 3734
+ },
+ {
+  "register": "technical/instructional",
+  "title": "RFC 7540: HTTP/2 (secs 1-3)",
+  "author": "M. Belshe, R. Peon, M. Thomson (ed.)",
+  "published": "2015-05",
+  "source": "https://www.rfc-editor.org/rfc/rfc7540.txt",
+  "slice": "cleaned lines 180-604",
+  "file": "T12_rfc7540.md",
+  "words": 2375
+ },
+ {
+  "register": "technical/instructional",
+  "title": "The Elements of Style, ch. III 'Elementary Principles of Composition'",
+  "author": "William Strunk Jr.",
+  "published": "1918",
+  "source": "https://www.gutenberg.org/cache/epub/37134/pg37134.txt",
+  "slice": "PG body lines 524-1371",
+  "file": "T09_strunk_composition.md",
+  "words": 5460
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "Rogers Commission Report vol. 2, App. F: 'Personal Observations on Reliability of Shuttle'",
+  "author": "Richard P. Feynman",
+  "published": "1986-06",
+  "source": "https://history.nasa.gov/rogersrep/v2appf.htm",
+  "slice": "whole page body",
+  "file": "J04_feynman_appendix-f.md",
+  "words": 5407
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "Rogers Commission Report vol. 1, ch. IV 'The Cause of the Accident'",
+  "author": "Presidential Commission on the Space Shuttle Challenger Accident",
+  "published": "1986-06",
+  "source": "https://history.nasa.gov/rogersrep/v1ch4.htm",
+  "slice": "whole page body",
+  "file": "J05_rogers_v1-ch4.md",
+  "words": 15078
+ },
+ {
+  "register": "journalistic/reportage",
+  "title": "Rogers Commission Report vol. 1, ch. V 'The Contributing Cause of the Accident'",
+  "author": "Presidential Commission on the Space Shuttle Challenger Accident",
+  "published": "1986-06",
+  "source": "https://history.nasa.gov/rogersrep/v1ch5.htm",
+  "slice": "whole page body",
+  "file": "J06_rogers_v1-ch5.md",
+  "words": 19131
+ },
+ {
+  "register": "legal/argumentative",
+  "title": "Obergefell v. Hodges, 576 U.S. 644, opinion of the Court",
+  "author": "Justice Anthony M. Kennedy (U.S. Supreme Court)",
+  "published": "2015-06-26",
+  "source": "https://en.wikisource.org/wiki/Obergefell_et_al._v._Hodges,_Director,_Ohio_Department_of_Health,_et_al./Opinion_of_the_Court",
+  "slice": "body from 'SUPREME COURT OF THE UNITED STATES' to 'It is so ordered.'",
+  "file": "E01_obergefell_opinion.md",
+  "words": 8460
+ }
+]

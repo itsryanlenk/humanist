@@ -1,0 +1,66 @@
+{
+  "_comment": "Worked example config for humanist.py. This file is DOCUMENTATION, not an install artifact: every value below is invented to show the shape of a key, and copying it verbatim would install someone else's taste as your policy. Copy the keys you actually want into humanist.config.json (auto-loaded from the current directory) or pass it with --config PATH. Keys beginning with an underscore are comments and are ignored.",
+
+  "house": {
+    "_comment_severity_overrides": "Keys are RULE IDs, matched EXACTLY. Run `python humanist.py --rules` for the list. An unknown ID or an invalid severity is a hard error, not a silent no-op: the previous version matched by substring, so a key of 'often' silently disabled an unrelated rule, and a typo turned a FAIL into an uncounted note while the run still reported CLEAN. Values: FAIL, WARN, or off.",
+    "severity_overrides": {
+      "em-dash": "off",
+      "ai-vocab-strong": "FAIL"
+    },
+
+    "_comment_extra_banned_words": "Words your house bans outright; every hit is a FAIL. The shipped rule set contains no blanket word bans, because a ban on a common English word is house taste rather than universal law. Invented example: a team that bans a pet adverb.",
+    "extra_banned_words": ["frankly"],
+
+    "_comment_extra_warn_words": "Words counted as blanket WARNs so repetition stays visible.",
+    "extra_warn_words": [],
+
+    "_comment_never_flag_words": "Words no rule may ever flag. This protects a measured tic of the author's real voice from the sweep. Measure your published writing before adding anything here. Invented example: a writer who has confirmed 'basically' is genuinely theirs.",
+    "never_flag_words": ["basically"],
+
+    "_comment_extra_ai_vocab": "Extra words appended to the tier-1 AI-vocab FAIL list.",
+    "extra_ai_vocab": [],
+
+    "_comment_exempt_patterns": "Anchored carve-outs. A hit is suppressed when one of these regexes matches STARTING AT the hit, so the pattern must begin with the flagged phrase. The principle: an empty drum-roll fails, an anchored report survives. Write the straight-apostrophe form; the checker folds curly quotes before matching, which is why text arriving through html2prose.py no longer defeats these.",
+    "exempt_patterns": ["here's the thing (?:i|about|with)\\b"],
+
+    "_comment_readability": "Checked and reported as a WARN, not merely printed. An audience-friction measure, not a voice measure: a real voice at grade 9 beats slop at grade 6. Set check_readability false to skip it entirely.",
+    "fk_quotable": 8,
+    "fk_body": 10,
+    "check_readability": true,
+
+    "_comment_syllable_overrides": "Domain acronyms and words the heuristic syllable counter miscounts, merged into the built-in table. Affects the FK grade only.",
+    "syllable_overrides": { "sql": 3, "oauth": 2, "kubernetes": 4 }
+  },
+
+  "_comment_markers": "The word list --mode post measures per 1,000 words. Replacing this key replaces the whole set rather than extending it, so include the defaults you still want. A register-fingerprint marker (a word class only you use) has to be user-defined; none ships.",
+  "markers": {
+    "I": "\\bi\\b",
+    "you": "\\byou\\b",
+    "your": "\\byour\\b",
+    "so": "\\bso\\b",
+    "just": "\\bjust\\b"
+  },
+
+  "band_sets": {
+    "_comment": "One band set per register, normally written by `python humanist.py --calibrate <dir> --register <name>`. The entry below documents the shape only. Generate your own; hand-authored bands are somebody's guess about a voice, which is exactly what calibration exists to replace.",
+    "example-general": {
+      "provenance": {
+        "sources": ["essay-01.md", "essay-02.md"],
+        "files": 2,
+        "words": 4200,
+        "date": "2026-01-15"
+      },
+      "bands": {
+        "med": [10, 18, "median sentence words (example values)"],
+        "le5": [3.0, 12.0, "% sentences <=5 words (example values)"],
+        "gt20": [12.0, 30.0, "% sentences >20 words (example values)"],
+        "I": [4.0, 16.0, "'I' per 1k (example values)"],
+        "you": [3.0, 14.0, "'you' per 1k (example values)"],
+        "your": [1.0, 8.0, "'your' per 1k (example values)"],
+        "so": [1.0, 7.0, "'so' per 1k (example values)"],
+        "just": [1.0, 7.0, "'just' per 1k (example values)"]
+      },
+      "min_words": { "I": 300, "you": 350, "your": 700, "so": 750, "just": 750 }
+    }
+  }
+}

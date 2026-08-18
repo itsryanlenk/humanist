@@ -1,0 +1,59 @@
+name: validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # Windows is in the matrix deliberately. The checker is line-oriented and
+        # prints matched text to stdout, and both of those behave differently under
+        # a non-UTF-8 console codepage. A Linux-only matrix hid exactly that class
+        # of bug in the version this project was built from.
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.9", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate structure, manifests, references and privacy
+        run: python scripts/validate_repo.py
+
+      - name: Checker selftest
+        run: python plugins/humanist/skills/humanist/humanist.py --selftest
+
+      - name: Checker regression suite
+        run: python -m unittest discover -s tests -v
+
+      - name: Inkwash engine suite
+        run: node app/test-inkwash.mjs
+
+      - name: Inkwash document-import suite
+        run: node app/test-docx.mjs
+
+  # The false-positive corpus is the one gate that catches a rule change quietly
+  # turning the checker against ordinary human prose. It runs separately because
+  # it needs the vendored corpus and is slower than the unit suite.
+  false-positive-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Human-prose false-positive ceiling
+        run: python tests/fp_guard.py

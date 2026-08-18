@@ -1,0 +1,17 @@
+{
+  "name": "humanist",
+  "version": "0.1.0",
+  "description": "Write prose that reads as though a person wrote it, then prove it mechanically. A rewrite pass, a reporting gate, and a composition read.",
+  "author": { "name": "Ryan Lenk" },
+  "homepage": "https://github.com/itsryanlenk/humanist",
+  "repository": "https://github.com/itsryanlenk/humanist",
+  "license": "MIT",
+  "keywords": [
+    "writing",
+    "editing",
+    "prose",
+    "humanize",
+    "ai-tells",
+    "style-gate"
+  ]
+}

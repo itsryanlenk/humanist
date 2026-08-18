@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Security or privacy report
+    url: https://github.com/itsryanlenk/humanist/security/advisories/new
+    about: Report a vulnerability privately. Please do not open a public issue for these.
+  - name: Question about how to use it
+    url: https://github.com/itsryanlenk/humanist/discussions
+    about: Usage questions, calibration help, and "is this a real tell or not" arguments.

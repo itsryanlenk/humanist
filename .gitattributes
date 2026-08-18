@@ -1,0 +1,28 @@
+# Normalise everything to LF in the repository. This is not cosmetic: the checker
+# is line-oriented in three places (blockquote stripping, bold-bullet counting,
+# and the multiline rules), and a CRLF checkout changes what a contributor sees
+# relative to CI.
+* text=auto eol=lf
+
+# Prose and code that must stay LF on every platform.
+*.md      text eol=lf
+*.py      text eol=lf
+*.json    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.html    text eol=lf
+*.mjs     text eol=lf
+*.js      text eol=lf
+*.txt     text eol=lf
+LICENSE   text eol=lf
+
+# Fixtures whose exact bytes are the point of the test. Never touch these.
+tests/fixtures/**  -text
+*.crlf.md          -text
+
+# Binary.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.pdf binary

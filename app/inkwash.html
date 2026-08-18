@@ -1,0 +1,1144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INKWASH</title>
+<style>
+/* ============================================================
+   INKWASH - neobrutalist single-file prose sanitizer.
+   No network, no build step, no dependencies. Everything the
+   page needs is in this file.
+   ============================================================ */
+:root{
+  --neo-black:#000000;
+  --neo-white:#FFFFFF;
+  --neo-cream:#F5F0E6;
+  --neo-red:#FF5252;
+  --neo-yellow:#FFEB3B;
+  --neo-blue:#2196F3;
+  --neo-pink:#FF4081;
+  --neo-green:#4CAF50;
+  --neo-orange:#FF9800;
+  --neo-purple:#9C27B0;
+  --neo-gray:#D9D4C7;
+
+  --font-neo-display:'Archivo Black','Arial Black','Impact',sans-serif;
+  --font-neo-body:'Space Grotesk','Segoe UI',Arial,sans-serif;
+  --font-neo-mono:'JetBrains Mono','Cascadia Mono',Consolas,'Courier New',monospace;
+
+  --neo-shadow-size:3px;
+  --neo-border-width:2px;
+}
+@media (min-width:640px){:root{--neo-shadow-size:4px;--neo-border-width:3px}}
+@media (min-width:1024px){:root{--neo-shadow-size:6px;--neo-border-width:4px}}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--neo-cream);
+  color:var(--neo-black);
+  font-family:var(--font-neo-body);
+  font-size:1rem;
+  line-height:1.55;
+  min-height:100vh;
+}
+
+/* ---------- primitives ---------- */
+.bx{
+  background:var(--neo-white);
+  border:var(--neo-border-width) solid var(--neo-black);
+  box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black);
+}
+.btn{
+  background:var(--neo-white);
+  color:var(--neo-black);
+  border:var(--neo-border-width) solid var(--neo-black);
+  box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black);
+  padding:.6rem 1rem;
+  font-family:var(--font-neo-display);
+  font-size:.8rem;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
+  line-height:1.2;
+}
+.btn:hover{box-shadow:calc(var(--neo-shadow-size) + 2px) calc(var(--neo-shadow-size) + 2px) 0 var(--neo-black);transform:translate(-2px,-2px)}
+.btn:active{box-shadow:2px 2px 0 var(--neo-black);transform:translate(2px,2px)}
+.btn:focus-visible{outline:3px solid var(--neo-blue);outline-offset:2px}
+.btn--primary{background:var(--neo-yellow)}
+.btn--go{background:var(--neo-green);color:var(--neo-white)}
+.btn--ghost{background:var(--neo-cream)}
+.btn[disabled]{background:var(--neo-gray);cursor:not-allowed;box-shadow:2px 2px 0 var(--neo-black);transform:none}
+
+@media (prefers-reduced-motion:reduce){
+  .btn{transition:none}
+  .btn:hover{transform:none;box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black)}
+  .btn:active{transform:none}
+}
+
+/* ---------- masthead ---------- */
+header.top{
+  background:var(--neo-black);
+  color:var(--neo-white);
+  border-bottom:4px solid var(--neo-black);
+  padding:.9rem 1.25rem;
+  display:flex;
+  flex-wrap:wrap;
+  gap:.75rem 1rem;
+  align-items:baseline;
+  justify-content:space-between;
+}
+.brand{
+  font-family:var(--font-neo-display);
+  font-size:clamp(1.6rem,5vw,2.4rem);
+  line-height:.95;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+}
+.brand em{font-style:normal;background:var(--neo-yellow);color:var(--neo-black);padding:0 .25rem}
+.tagline{font-size:.82rem;max-width:56ch;color:var(--neo-white)}
+.tagline b{background:var(--neo-pink);color:var(--neo-black);padding:0 .3rem;font-weight:700}
+
+/* ---------- layout ---------- */
+main{padding:1.25rem;max-width:1600px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr;gap:1.25rem}
+@media (min-width:1080px){.grid{grid-template-columns:1fr 1fr}}
+
+.panel{display:flex;flex-direction:column;min-width:0}
+.panel__head{
+  background:var(--neo-black);
+  color:var(--neo-white);
+  border:var(--neo-border-width) solid var(--neo-black);
+  border-bottom:none;
+  padding:.5rem .75rem;
+  font-family:var(--font-neo-display);
+  font-size:.8rem;
+  text-transform:uppercase;
+  display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;
+}
+.panel__head .meter{font-family:var(--font-neo-mono);font-size:.7rem;background:var(--neo-white);color:var(--neo-black);padding:.1rem .4rem;border:2px solid var(--neo-white)}
+textarea{
+  width:100%;
+  min-height:340px;
+  resize:vertical;
+  background:var(--neo-white);
+  border:var(--neo-border-width) solid var(--neo-black);
+  box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black);
+  padding:.9rem 1rem;
+  font-family:var(--font-neo-mono);
+  font-size:.92rem;
+  line-height:1.6;
+  color:var(--neo-black);
+}
+textarea:focus{outline:none;box-shadow:calc(var(--neo-shadow-size) + 2px) calc(var(--neo-shadow-size) + 2px) 0 var(--neo-blue)}
+textarea::placeholder{color:#777}
+textarea[readonly]{background:var(--neo-cream)}
+.dropping textarea#input{box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-pink);border-color:var(--neo-pink)}
+
+.row{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.75rem;align-items:center}
+
+/* ---------- verdict ---------- */
+.verdict{
+  margin:1.25rem 0 0;
+  padding:.9rem 1rem;
+  border:var(--neo-border-width) solid var(--neo-black);
+  box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black);
+  font-family:var(--font-neo-display);
+  font-size:clamp(1rem,2.6vw,1.35rem);
+  text-transform:uppercase;
+  display:flex;flex-wrap:wrap;gap:.5rem 1rem;align-items:baseline;
+}
+.verdict small{font-family:var(--font-neo-body);font-size:.8rem;text-transform:none;font-weight:400}
+.verdict--clean{background:var(--neo-green);color:var(--neo-white)}
+.verdict--dirty{background:var(--neo-yellow);color:var(--neo-black)}
+.verdict--idle{background:var(--neo-gray);color:var(--neo-black)}
+
+/* ---------- findings ---------- */
+.findings{margin-top:1.25rem}
+.finding{
+  background:var(--neo-white);
+  border:var(--neo-border-width) solid var(--neo-black);
+  box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black);
+  margin-bottom:1rem;
+}
+.finding__bar{
+  display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;
+  padding:.55rem .75rem;
+  border-bottom:var(--neo-border-width) solid var(--neo-black);
+  background:var(--neo-cream);
+}
+.finding__bar h3{font-family:var(--font-neo-display);font-size:.85rem;text-transform:uppercase;flex:1;min-width:12ch}
+.tally{
+  font-family:var(--font-neo-mono);font-size:.8rem;font-weight:700;
+  border:2px solid var(--neo-black);padding:.05rem .45rem;background:var(--neo-white);
+}
+.tally--hit{background:var(--neo-red);color:var(--neo-white)}
+.tally--kept{background:var(--neo-blue);color:var(--neo-white)}
+.finding__why{padding:.6rem .75rem;font-size:.85rem;border-bottom:2px dashed var(--neo-black)}
+.hits{padding:.5rem .75rem;font-family:var(--font-neo-mono);font-size:.8rem}
+.hit{padding:.35rem 0;border-bottom:1px dotted var(--neo-black);overflow-wrap:anywhere}
+.hit:last-child{border-bottom:none}
+.cp{background:var(--neo-black);color:var(--neo-yellow);padding:0 .3rem;font-weight:700}
+.ctx{color:#333}
+.mark{background:var(--neo-red);color:var(--neo-white);padding:0 .2rem;font-weight:700}
+.more{padding:.4rem .75rem;font-size:.78rem;background:var(--neo-cream);border-top:2px solid var(--neo-black)}
+
+/* ---------- toggles ---------- */
+.opts{margin-top:1.25rem}
+.opt{
+  display:flex;gap:.65rem;align-items:flex-start;
+  padding:.55rem .7rem;
+  border-bottom:2px solid var(--neo-black);
+}
+.opt:last-child{border-bottom:none}
+input[type=checkbox]{
+  appearance:none;-webkit-appearance:none;
+  width:22px;height:22px;flex:0 0 22px;margin-top:.15rem;
+  border:3px solid var(--neo-black);background:var(--neo-white);cursor:pointer;
+}
+input[type=checkbox]:checked{background:var(--neo-black)}
+input[type=checkbox]:checked::after{content:'X';color:var(--neo-yellow);font-family:var(--font-neo-display);font-size:13px;display:flex;align-items:center;justify-content:center;height:100%}
+input[type=checkbox]:focus-visible{outline:3px solid var(--neo-blue);outline-offset:2px}
+.opt label{cursor:pointer;font-size:.86rem}
+.opt label b{font-family:var(--font-neo-display);text-transform:uppercase;font-size:.78rem;display:block}
+select{
+  font-family:var(--font-neo-mono);font-size:.78rem;
+  border:2px solid var(--neo-black);background:var(--neo-white);padding:.15rem .3rem;color:var(--neo-black);
+}
+select:focus-visible{outline:3px solid var(--neo-blue);outline-offset:2px}
+
+/* ---------- notes ---------- */
+.note{margin-top:1.25rem;padding:.9rem 1rem;background:var(--neo-white);border:var(--neo-border-width) solid var(--neo-black);box-shadow:var(--neo-shadow-size) var(--neo-shadow-size) 0 var(--neo-black)}
+.note h2{font-family:var(--font-neo-display);font-size:.9rem;text-transform:uppercase;margin-bottom:.5rem;background:var(--neo-black);color:var(--neo-white);display:inline-block;padding:.15rem .5rem}
+.note p{font-size:.88rem;margin-bottom:.6rem}
+.note p:last-child{margin-bottom:0}
+.note code{font-family:var(--font-neo-mono);background:var(--neo-cream);border:2px solid var(--neo-black);padding:0 .25rem;font-size:.85em}
+.note--warn{background:var(--neo-yellow)}
+.note--smuggle{background:var(--neo-red);color:var(--neo-white)}
+.note--smuggle h2{background:var(--neo-white);color:var(--neo-black)}
+.note--smuggle code{background:var(--neo-black);color:var(--neo-yellow);border-color:var(--neo-white)}
+
+footer{padding:1.5rem 1.25rem 2.5rem;max-width:1600px;margin:0 auto;font-size:.78rem}
+footer hr{border:none;border-top:4px solid var(--neo-black);margin-bottom:.9rem}
+
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+#toast{
+  position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%);
+  background:var(--neo-black);color:var(--neo-yellow);
+  border:3px solid var(--neo-yellow);box-shadow:5px 5px 0 var(--neo-pink);
+  font-family:var(--font-neo-display);text-transform:uppercase;font-size:.85rem;
+  padding:.6rem 1rem;display:none;z-index:50;
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div>
+    <div class="brand">INK<em>WASH</em></div>
+    <p class="tagline">Strips invisible characters and machine typography out of finished prose. <b>Runs entirely in this page.</b> Nothing you paste is uploaded, stored, or sent anywhere.</p>
+  </div>
+  <button class="btn btn--ghost" id="demo" type="button">Load a dirty sample</button>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="panel">
+      <div class="panel__head"><span>1 &mdash; Paste your finished prose</span><span class="meter" id="inMeter">0 chars</span></div>
+      <textarea id="input" spellcheck="false" placeholder="Paste here, or drop a .txt / .md / .html / .docx file onto this box."></textarea>
+      <div class="row">
+        <button class="btn btn--go" id="run" type="button">Wash it</button>
+        <button class="btn" id="pick" type="button">Open file</button>
+        <button class="btn btn--ghost" id="clear" type="button">Clear</button>
+        <input type="file" id="file" accept=".txt,.md,.markdown,.html,.htm,.rtf,.docx,text/*" class="sr">
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><span>2 &mdash; Washed output</span><span class="meter" id="outMeter">0 chars</span></div>
+      <textarea id="output" spellcheck="false" readonly placeholder="The cleaned text lands here."></textarea>
+      <div class="row">
+        <button class="btn btn--primary" id="copy" type="button" disabled>Copy</button>
+        <button class="btn" id="download" type="button" disabled>Save .txt</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="verdict verdict--idle" id="verdict" role="status" aria-live="polite">
+    <span id="verdictText">Nothing washed yet</span>
+    <small id="verdictSub">Paste something and press Wash it.</small>
+  </div>
+
+  <div id="smuggled"></div>
+  <div id="docmeta"></div>
+
+  <section class="findings" id="findings" aria-label="What was found"></section>
+
+  <section class="opts bx" aria-label="Options">
+    <div class="opt" style="background:var(--neo-black);color:var(--neo-white);border-bottom-color:var(--neo-white)">
+      <label style="cursor:default"><b style="color:var(--neo-yellow)">What to strip</b>Every switch is on by default. Turn one off and its hits are still reported, just left in the text.</label>
+    </div>
+    <div id="optList"></div>
+    <div class="opt">
+      <span style="width:22px;flex:0 0 22px"></span>
+      <label for="dashMode"><b>Em dash becomes</b>
+        <select id="dashMode">
+          <option value=" - " selected>a spaced hyphen &mdash; word - word</option>
+          <option value="--">a typed double hyphen &mdash; word--word</option>
+          <option value=", ">a comma &mdash; word, word</option>
+          <option value="KEEP">leave em dashes alone</option>
+        </select>
+        <span style="display:block;margin-top:.3rem">No substitution is right every time. An em dash usually wants the sentence rebuilt around it, and rebuilding sentences is the skill's job, not this page's.</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="note note--warn">
+    <h2>What this cannot do</h2>
+    <p>Inkwash works on <b>characters</b>. It finds and removes things that are literally present in your file: zero-width characters, smuggled Unicode tag bytes, homoglyph letters borrowed from other alphabets, exotic spaces, and machine typography. Every one of those is deterministic, so every change is itemized above and you can verify it yourself.</p>
+    <p><b>It cannot remove a statistical watermark.</b> Schemes such as SynthID-Text and green-list token biasing do not add characters &mdash; they live in <i>which words were chosen</i>, spread across the whole passage. No character-level tool can touch them, and any tool claiming otherwise is guessing. Changing that signal requires rewriting the prose, which is what the HUMANIST skill's rewrite pass is for.</p>
+    <p>This is a hygiene tool, not a disguise. Clean text still reads exactly as well or as badly as it was written.</p>
+  </section>
+
+  <section class="note">
+    <h2>Why invisible characters end up in your writing</h2>
+    <p>Most of them are not adversarial. Word processors insert non-breaking spaces and soft hyphens for layout. Web editors leave zero-width spaces at paste boundaries. Copying out of a rendered page picks up whatever the CSS put there. Several AI writing tools emit zero-width characters or unusual spacing as a side effect of their tokeniser.</p>
+    <p>They matter anyway: they break search and find-and-replace, corrupt diffs, defeat word counts, survive into your CMS, and carry provenance you did not choose to publish. The <code>U+E0000</code> tag block is the one genuinely adversarial case &mdash; it can encode arbitrary hidden text inside a passage that looks completely ordinary. If Inkwash finds any, it decodes and shows you the message.</p>
+  </section>
+</main>
+
+<footer>
+  <hr>
+  <p><b>INKWASH</b> is the companion tool to the HUMANIST writing skill. Single file, no network, no dependencies, no telemetry. Open the source and read it &mdash; the whole program is in the page you are looking at.</p>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   CHARACTER TABLES
+   Each entry: [codepoint, unicode name, replacement string]
+   ========================================================================= */
+
+// -- invisible / zero-width. Removed outright.
+const ZERO_WIDTH = new Map([
+  [0x200B,"ZERO WIDTH SPACE"],
+  [0x2060,"WORD JOINER"],
+  [0xFEFF,"ZERO WIDTH NO-BREAK SPACE (BOM)"],
+  [0x00AD,"SOFT HYPHEN"],
+  [0x034F,"COMBINING GRAPHEME JOINER"],
+  [0x061C,"ARABIC LETTER MARK"],
+  [0x180E,"MONGOLIAN VOWEL SEPARATOR"],
+  [0x2061,"FUNCTION APPLICATION"],
+  [0x2062,"INVISIBLE TIMES"],
+  [0x2063,"INVISIBLE SEPARATOR"],
+  [0x2064,"INVISIBLE PLUS"],
+  [0x115F,"HANGUL CHOSEONG FILLER"],
+  [0x1160,"HANGUL JUNGSEONG FILLER"],
+  [0x3164,"HANGUL FILLER"],
+  [0xFFA0,"HALFWIDTH HANGUL FILLER"],
+]);
+
+// -- joiners: script-meaningful, so handled with context checks.
+const JOINERS = new Map([
+  [0x200C,"ZERO WIDTH NON-JOINER"],
+  [0x200D,"ZERO WIDTH JOINER"],
+]);
+
+// -- deprecated and specialist format controls. All invisible, none meaningful in
+// Latin prose. U+FFF9-FFFB in particular is a display-spoofing vector: text between
+// an annotation anchor and terminator can render differently from what is stored.
+const DEPRECATED = new Map([
+  [0x206A,"INHIBIT SYMMETRIC SWAPPING (deprecated)"],
+  [0x206B,"ACTIVATE SYMMETRIC SWAPPING (deprecated)"],
+  [0x206C,"INHIBIT ARABIC FORM SHAPING (deprecated)"],
+  [0x206D,"ACTIVATE ARABIC FORM SHAPING (deprecated)"],
+  [0x206E,"NATIONAL DIGIT SHAPES (deprecated)"],
+  [0x206F,"NOMINAL DIGIT SHAPES (deprecated)"],
+  [0xFFF9,"INTERLINEAR ANNOTATION ANCHOR"],
+  [0xFFFA,"INTERLINEAR ANNOTATION SEPARATOR"],
+  [0xFFFB,"INTERLINEAR ANNOTATION TERMINATOR"],
+  [0x1BCA0,"SHORTHAND FORMAT LETTER OVERLAP"],
+  [0x1BCA1,"SHORTHAND FORMAT CONTINUING OVERLAP"],
+  [0x1BCA2,"SHORTHAND FORMAT DOWN STEP"],
+  [0x1BCA3,"SHORTHAND FORMAT UP STEP"],
+  [0x1D173,"MUSICAL SYMBOL BEGIN BEAM"],
+  [0x1D174,"MUSICAL SYMBOL END BEAM"],
+  [0x1D175,"MUSICAL SYMBOL BEGIN TIE"],
+  [0x1D176,"MUSICAL SYMBOL END TIE"],
+  [0x1D177,"MUSICAL SYMBOL BEGIN SLUR"],
+  [0x1D178,"MUSICAL SYMBOL END SLUR"],
+  [0x1D179,"MUSICAL SYMBOL BEGIN PHRASE"],
+  [0x1D17A,"MUSICAL SYMBOL END PHRASE"],
+]);
+
+// -- format characters that are LOAD-BEARING in their own scripts. An Arabic end-of-ayah
+// mark inside Arabic text is content; the same character alone in English prose is a
+// smuggling vector. Handled like the zero-width joiners: kept when the script they
+// belong to is present nearby, removed and reported when it is not.
+const SCRIPT_FORMAT = [
+  {lo:0x0600, hi:0x0605, name:"ARABIC NUMBER SIGN family",  script:/\p{Script=Arabic}/u},
+  {lo:0x06DD, hi:0x06DD, name:"ARABIC END OF AYAH",         script:/\p{Script=Arabic}/u},
+  {lo:0x0890, hi:0x0891, name:"ARABIC CURRENCY MARK",       script:/\p{Script=Arabic}/u},
+  {lo:0x08E2, hi:0x08E2, name:"ARABIC DISPUTED END OF AYAH",script:/\p{Script=Arabic}/u},
+  {lo:0x070F, hi:0x070F, name:"SYRIAC ABBREVIATION MARK",   script:/\p{Script=Syriac}/u},
+  {lo:0x110BD,hi:0x110BD,name:"KAITHI NUMBER SIGN",         script:/\p{Script=Kaithi}/u},
+  {lo:0x110CD,hi:0x110CD,name:"KAITHI NUMBER SIGN ABOVE",   script:/\p{Script=Kaithi}/u},
+  {lo:0x13430,hi:0x1343F,name:"EGYPTIAN HIEROGLYPH FORMAT CONTROL",
+   script:/\p{Script=Egyptian_Hieroglyphs}/u},
+];
+function scriptFormat(cp){ return SCRIPT_FORMAT.find(g => cp >= g.lo && cp <= g.hi) || null; }
+
+// -- bidirectional controls (the "Trojan Source" family).
+const BIDI = new Map([
+  [0x200E,"LEFT-TO-RIGHT MARK"],
+  [0x200F,"RIGHT-TO-LEFT MARK"],
+  [0x202A,"LEFT-TO-RIGHT EMBEDDING"],
+  [0x202B,"RIGHT-TO-LEFT EMBEDDING"],
+  [0x202C,"POP DIRECTIONAL FORMATTING"],
+  [0x202D,"LEFT-TO-RIGHT OVERRIDE"],
+  [0x202E,"RIGHT-TO-LEFT OVERRIDE"],
+  [0x2066,"LEFT-TO-RIGHT ISOLATE"],
+  [0x2067,"RIGHT-TO-LEFT ISOLATE"],
+  [0x2068,"FIRST STRONG ISOLATE"],
+  [0x2069,"POP DIRECTIONAL ISOLATE"],
+]);
+
+// -- exotic whitespace, normalized to a plain space (or newline).
+const SPACES = new Map([
+  [0x00A0,["NO-BREAK SPACE"," "]],
+  [0x1680,["OGHAM SPACE MARK"," "]],
+  [0x2000,["EN QUAD"," "]],
+  [0x2001,["EM QUAD"," "]],
+  [0x2002,["EN SPACE"," "]],
+  [0x2003,["EM SPACE"," "]],
+  [0x2004,["THREE-PER-EM SPACE"," "]],
+  [0x2005,["FOUR-PER-EM SPACE"," "]],
+  [0x2006,["SIX-PER-EM SPACE"," "]],
+  [0x2007,["FIGURE SPACE"," "]],
+  [0x2008,["PUNCTUATION SPACE"," "]],
+  [0x2009,["THIN SPACE"," "]],
+  [0x200A,["HAIR SPACE"," "]],
+  [0x202F,["NARROW NO-BREAK SPACE"," "]],
+  [0x205F,["MEDIUM MATHEMATICAL SPACE"," "]],
+  [0x3000,["IDEOGRAPHIC SPACE"," "]],
+  [0x2028,["LINE SEPARATOR","\n"]],
+  [0x2029,["PARAGRAPH SEPARATOR","\n\n"]],
+]);
+
+// -- machine typography.
+const TYPO = new Map([
+  [0x2018,["LEFT SINGLE QUOTATION MARK","'"]],
+  [0x2019,["RIGHT SINGLE QUOTATION MARK","'"]],
+  [0x201A,["SINGLE LOW-9 QUOTATION MARK","'"]],
+  [0x201B,["SINGLE HIGH-REVERSED-9 QUOTATION MARK","'"]],
+  [0x201C,["LEFT DOUBLE QUOTATION MARK",'"']],
+  [0x201D,["RIGHT DOUBLE QUOTATION MARK",'"']],
+  [0x201E,["DOUBLE LOW-9 QUOTATION MARK",'"']],
+  [0x201F,["DOUBLE HIGH-REVERSED-9 QUOTATION MARK",'"']],
+  [0x2032,["PRIME","'"]],
+  [0x2033,["DOUBLE PRIME",'"']],
+  [0x2035,["REVERSED PRIME","'"]],
+  [0x00B4,["ACUTE ACCENT","'"]],
+  [0x0060,["GRAVE ACCENT","'"]],
+  [0x2013,["EN DASH","-"]],
+  [0x2012,["FIGURE DASH","-"]],
+  [0x2015,["HORIZONTAL BAR","-"]],
+  [0x2010,["HYPHEN","-"]],
+  [0x2011,["NON-BREAKING HYPHEN","-"]],
+  [0x2212,["MINUS SIGN","-"]],
+  [0x2026,["HORIZONTAL ELLIPSIS","..."]],
+  [0x2022,["BULLET","-"]],
+  [0x2023,["TRIANGULAR BULLET","-"]],
+  [0x25AA,["BLACK SMALL SQUARE","-"]],
+  [0x2192,["RIGHTWARDS ARROW","->"]],
+  [0x21D2,["RIGHTWARDS DOUBLE ARROW","=>"]],
+  [0x2190,["LEFTWARDS ARROW","<-"]],
+  [0x25B8,["BLACK RIGHT-POINTING SMALL TRIANGLE","->"]],
+  [0x2794,["HEAVY WIDE-HEADED RIGHTWARDS ARROW","->"]],
+  [0xFB01,["LATIN SMALL LIGATURE FI","fi"]],
+  [0xFB02,["LATIN SMALL LIGATURE FL","fl"]],
+  [0xFB00,["LATIN SMALL LIGATURE FF","ff"]],
+  [0x00AB,["LEFT-POINTING DOUBLE ANGLE QUOTATION MARK",'"']],
+  [0x00BB,["RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK",'"']],
+  [0x2039,["SINGLE LEFT-POINTING ANGLE QUOTATION MARK","'"]],
+  [0x203A,["SINGLE RIGHT-POINTING ANGLE QUOTATION MARK","'"]],
+]);
+const EM_DASH = 0x2014;
+
+// -- homoglyphs: Cyrillic and Greek letters that render as Latin ones.
+const HOMOGLYPH = new Map([
+  // Cyrillic lower
+  [0x0430,["CYRILLIC SMALL LETTER A","a"]],
+  [0x0435,["CYRILLIC SMALL LETTER IE","e"]],
+  [0x043E,["CYRILLIC SMALL LETTER O","o"]],
+  [0x0440,["CYRILLIC SMALL LETTER ER","p"]],
+  [0x0441,["CYRILLIC SMALL LETTER ES","c"]],
+  [0x0443,["CYRILLIC SMALL LETTER U","y"]],
+  [0x0445,["CYRILLIC SMALL LETTER HA","x"]],
+  [0x0456,["CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I","i"]],
+  [0x0458,["CYRILLIC SMALL LETTER JE","j"]],
+  [0x0455,["CYRILLIC SMALL LETTER DZE","s"]],
+  [0x04BB,["CYRILLIC SMALL LETTER SHHA","h"]],
+  [0x0501,["CYRILLIC SMALL LETTER KOMI DE","d"]],
+  // Cyrillic upper
+  [0x0410,["CYRILLIC CAPITAL LETTER A","A"]],
+  [0x0412,["CYRILLIC CAPITAL LETTER VE","B"]],
+  [0x0415,["CYRILLIC CAPITAL LETTER IE","E"]],
+  [0x041A,["CYRILLIC CAPITAL LETTER KA","K"]],
+  [0x041C,["CYRILLIC CAPITAL LETTER EM","M"]],
+  [0x041D,["CYRILLIC CAPITAL LETTER EN","H"]],
+  [0x041E,["CYRILLIC CAPITAL LETTER O","O"]],
+  [0x0420,["CYRILLIC CAPITAL LETTER ER","P"]],
+  [0x0421,["CYRILLIC CAPITAL LETTER ES","C"]],
+  [0x0422,["CYRILLIC CAPITAL LETTER TE","T"]],
+  [0x0423,["CYRILLIC CAPITAL LETTER U","Y"]],
+  [0x0425,["CYRILLIC CAPITAL LETTER HA","X"]],
+  [0x0405,["CYRILLIC CAPITAL LETTER DZE","S"]],
+  [0x0406,["CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I","I"]],
+  [0x0408,["CYRILLIC CAPITAL LETTER JE","J"]],
+  // Greek
+  [0x03BF,["GREEK SMALL LETTER OMICRON","o"]],
+  [0x03B1,["GREEK SMALL LETTER ALPHA","a"]],
+  [0x03B5,["GREEK SMALL LETTER EPSILON","e"]],
+  [0x03BD,["GREEK SMALL LETTER NU","v"]],
+  [0x03C1,["GREEK SMALL LETTER RHO","p"]],
+  [0x03C5,["GREEK SMALL LETTER UPSILON","u"]],
+  [0x0391,["GREEK CAPITAL LETTER ALPHA","A"]],
+  [0x0392,["GREEK CAPITAL LETTER BETA","B"]],
+  [0x0395,["GREEK CAPITAL LETTER EPSILON","E"]],
+  [0x0396,["GREEK CAPITAL LETTER ZETA","Z"]],
+  [0x0397,["GREEK CAPITAL LETTER ETA","H"]],
+  [0x0399,["GREEK CAPITAL LETTER IOTA","I"]],
+  [0x039A,["GREEK CAPITAL LETTER KAPPA","K"]],
+  [0x039C,["GREEK CAPITAL LETTER MU","M"]],
+  [0x039D,["GREEK CAPITAL LETTER NU","N"]],
+  [0x039F,["GREEK CAPITAL LETTER OMICRON","O"]],
+  [0x03A1,["GREEK CAPITAL LETTER RHO","P"]],
+  [0x03A4,["GREEK CAPITAL LETTER TAU","T"]],
+  [0x03A5,["GREEK CAPITAL LETTER UPSILON","Y"]],
+  [0x03A7,["GREEK CAPITAL LETTER CHI","X"]],
+  // Latin lookalikes from other blocks
+  [0x0131,["LATIN SMALL LETTER DOTLESS I","i"]],
+  [0x2170,["SMALL ROMAN NUMERAL ONE","i"]],
+  [0x217C,["SMALL ROMAN NUMERAL FIFTY","l"]],
+  [0x216C,["ROMAN NUMERAL FIFTY","L"]],
+  [0x2160,["ROMAN NUMERAL ONE","I"]],
+]);
+
+/* =========================================================================
+   CATEGORY DEFINITIONS - drive both the switches and the report
+   ========================================================================= */
+const CATEGORIES = [
+  {id:"zerowidth", label:"Zero-width & invisible", color:"var(--neo-red)",
+   why:"Characters that occupy no visual space at all. They survive copy-paste, break find-and-replace and word counts, and are the most common way provenance rides along inside otherwise ordinary text."},
+  {id:"tags", label:"Smuggled tag characters", color:"var(--neo-purple)",
+   why:"The U+E0000 Unicode tag block can encode arbitrary hidden ASCII inside a passage that looks completely normal. There is no legitimate use for it in prose. Anything found here is decoded and shown to you in full."},
+  {id:"varsel", label:"Variation selectors", color:"var(--neo-orange)",
+   why:"Invisible modifiers that alter how the preceding character renders. Emoji presentation selectors are kept because removing them breaks emoji; the rest carry no meaning in Latin prose and are a known steganography channel."},
+  {id:"deprecated", label:"Deprecated & specialist controls", color:"var(--neo-purple)",
+   why:"Deprecated Unicode format controls, interlinear annotation marks, shorthand and musical notation controls. All invisible, none meaningful in ordinary prose. The annotation family is the one that matters: text between an anchor and a terminator can display differently from what is actually stored."},
+  {id:"bidi", label:"Bidirectional controls", color:"var(--neo-pink)",
+   why:"Direction overrides that can make text display in an order different from how it is stored. Legitimate in genuinely right-to-left writing, meaningless and misleading in English prose."},
+  {id:"joiners", label:"Zero-width joiners", color:"var(--neo-blue)",
+   why:"ZWJ and ZWNJ are load-bearing in Arabic, Indic scripts and emoji sequences, and noise everywhere else. Also covers script-specific format marks: the Arabic end-of-ayah, the Syriac abbreviation mark, Kaithi number signs and Egyptian hieroglyph controls. Each of those is content inside its own script and a smuggling vector outside it, so each is kept when its script is present nearby and removed when it is not."},
+  {id:"spaces", label:"Exotic whitespace", color:"var(--neo-green)",
+   why:"Non-breaking, thin, hair, figure and ideographic spaces, normalized to a plain space. These are usually a word processor's layout artifact rather than anything you typed."},
+  {id:"homoglyph", label:"Homoglyph letters", color:"var(--neo-red)",
+   why:"Cyrillic and Greek letters that render identically to Latin ones. Only substituted inside words that already contain ordinary Latin letters, so genuine Greek or Cyrillic text is left alone."},
+  {id:"typo", label:"Machine typography", color:"var(--neo-yellow)",
+   why:"Curly quotes, en and em dashes, ellipsis characters, primes, arrows and ligatures. Auto-inserted by editors and by generative tools, and the exact family the HUMANIST gate fails on in public copy."},
+  {id:"tidy", label:"Whitespace tidy", color:"var(--neo-gray)",
+   why:"Trailing spaces at line ends, runs of three or more blank lines, and CRLF line endings normalized to LF. Cosmetic, but they are what makes a diff unreadable."},
+];
+
+/* =========================================================================
+   ENGINE
+   ========================================================================= */
+const RE_PICTO = /\p{Extended_Pictographic}|\p{Regional_Indicator}/u;
+const RE_JOINSCRIPT = /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Devanagari}\p{Script=Bengali}\p{Script=Gurmukhi}\p{Script=Gujarati}\p{Script=Oriya}\p{Script=Tamil}\p{Script=Telugu}\p{Script=Kannada}\p{Script=Malayalam}\p{Script=Sinhala}\p{Script=Thaana}\p{Script=Myanmar}\p{Script=Khmer}\p{Script=Mongolian}\p{Script=Syriac}]/u;
+const RE_LATIN = /[A-Za-z]/;
+
+function hex(cp){ return "U+" + cp.toString(16).toUpperCase().padStart(4,"0"); }
+
+function isVarSel(cp){
+  return (cp >= 0xFE00 && cp <= 0xFE0F) || (cp >= 0xE0100 && cp <= 0xE01EF);
+}
+function isTagChar(cp){
+  return cp >= 0xE0000 && cp <= 0xE007F;
+}
+
+/**
+ * Single pass over codepoints. Returns the washed string plus a flat list of
+ * every decision made, so the report can never claim more than the engine did.
+ */
+function wash(text, opts){
+  const cps = Array.from(text);            // codepoint-safe
+  const out = [];
+  const hits = [];                          // {cat, cp, name, action, from, to, ctx}
+  const smuggled = [];                      // decoded tag-block payload
+
+  const push = (cat, cp, name, action, to, i) => {
+    hits.push({cat, cp, name, action, from: String.fromCodePoint(cp), to, ctx: context(cps, i)});
+  };
+
+  for (let i = 0; i < cps.length; i++){
+    const ch = cps[i];
+    const cp = ch.codePointAt(0);
+
+    // --- smuggled Unicode tag block -------------------------------------
+    if (isTagChar(cp)){
+      const ascii = cp - 0xE0000;
+      if (ascii >= 0x20 && ascii <= 0x7E) smuggled.push(String.fromCharCode(ascii));
+      else if (cp === 0xE0001) smuggled.push("‹LANGUAGE TAG›");
+      else if (cp === 0xE007F) smuggled.push("‹CANCEL›");
+      push("tags", cp, "TAG CHARACTER", opts.tags ? "removed" : "kept", "", i);
+      if (!opts.tags) out.push(ch);
+      continue;
+    }
+
+    // --- zero-width / invisible -----------------------------------------
+    if (ZERO_WIDTH.has(cp)){
+      push("zerowidth", cp, ZERO_WIDTH.get(cp), opts.zerowidth ? "removed" : "kept", "", i);
+      if (!opts.zerowidth) out.push(ch);
+      continue;
+    }
+
+    // --- joiners, script aware ------------------------------------------
+    if (JOINERS.has(cp)){
+      const prev = i > 0 ? cps[i-1] : "";
+      const next = i < cps.length - 1 ? cps[i+1] : "";
+      const loadBearing =
+        RE_PICTO.test(prev) || RE_PICTO.test(next) ||
+        RE_JOINSCRIPT.test(prev) || RE_JOINSCRIPT.test(next);
+      if (loadBearing){
+        push("joiners", cp, JOINERS.get(cp) + " (load-bearing here)", "kept", "", i);
+        out.push(ch);
+      } else {
+        push("joiners", cp, JOINERS.get(cp), opts.joiners ? "removed" : "kept", "", i);
+        if (!opts.joiners) out.push(ch);
+      }
+      continue;
+    }
+
+    // --- variation selectors --------------------------------------------
+    if (isVarSel(cp)){
+      const prev = i > 0 ? cps[i-1] : "";
+      const emojiSel = (cp === 0xFE0F || cp === 0xFE0E) && RE_PICTO.test(prev);
+      if (emojiSel){
+        push("varsel", cp, (cp === 0xFE0F ? "VARIATION SELECTOR-16 (emoji presentation)" : "VARIATION SELECTOR-15 (text presentation)") + " - kept, removing it would break the emoji", "kept", "", i);
+        out.push(ch);
+      } else {
+        const n = cp <= 0xFE0F ? cp - 0xFE00 + 1 : cp - 0xE0100 + 17;
+        push("varsel", cp, "VARIATION SELECTOR-" + n, opts.varsel ? "removed" : "kept", "", i);
+        if (!opts.varsel) out.push(ch);
+      }
+      continue;
+    }
+
+    // --- deprecated / specialist format controls --------------------------
+    if (DEPRECATED.has(cp)){
+      push("deprecated", cp, DEPRECATED.get(cp), opts.deprecated ? "removed" : "kept", "", i);
+      if (!opts.deprecated) out.push(ch);
+      continue;
+    }
+
+    // --- script-bearing format marks, kept when their script is present ----
+    const sf = scriptFormat(cp);
+    if (sf){
+      // The window must EXCLUDE the character itself. Several of these marks carry
+      // the script property of the script they belong to, so including them made the
+      // test self-satisfying and nothing was ever removed.
+      const near = cps.slice(Math.max(0, i - 6), i).join("") + cps.slice(i + 1, i + 7).join("");
+      if (sf.script.test(near)){
+        push("joiners", cp, sf.name + " (load-bearing here)", "kept", "", i);
+        out.push(ch);
+      } else {
+        push("joiners", cp, sf.name, opts.joiners ? "removed" : "kept", "", i);
+        if (!opts.joiners) out.push(ch);
+      }
+      continue;
+    }
+
+    // --- bidi controls ---------------------------------------------------
+    if (BIDI.has(cp)){
+      push("bidi", cp, BIDI.get(cp), opts.bidi ? "removed" : "kept", "", i);
+      if (!opts.bidi) out.push(ch);
+      continue;
+    }
+
+    // --- exotic whitespace ------------------------------------------------
+    if (SPACES.has(cp)){
+      const [name, rep] = SPACES.get(cp);
+      push("spaces", cp, name, opts.spaces ? "replaced" : "kept", rep, i);
+      out.push(opts.spaces ? rep : ch);
+      continue;
+    }
+
+    // --- em dash (its own switchable replacement) -------------------------
+    if (cp === EM_DASH){
+      if (opts.typo && opts.dash !== "KEEP"){
+        push("typo", cp, "EM DASH", "replaced", opts.dash, i);
+        out.push(opts.dash);
+      } else {
+        push("typo", cp, "EM DASH", "kept", "", i);
+        out.push(ch);
+      }
+      continue;
+    }
+
+    // --- machine typography -----------------------------------------------
+    if (TYPO.has(cp)){
+      const [name, rep] = TYPO.get(cp);
+      push("typo", cp, name, opts.typo ? "replaced" : "kept", rep, i);
+      out.push(opts.typo ? rep : ch);
+      continue;
+    }
+
+    // --- fullwidth forms --------------------------------------------------
+    if (cp >= 0xFF01 && cp <= 0xFF5E){
+      const rep = String.fromCharCode(cp - 0xFEE0);
+      push("typo", cp, "FULLWIDTH FORM of '" + rep + "'", opts.typo ? "replaced" : "kept", rep, i);
+      out.push(opts.typo ? rep : ch);
+      continue;
+    }
+
+    // --- homoglyphs, decided per word later; mark position for now --------
+    if (HOMOGLYPH.has(cp)){
+      out.push(ch);          // provisional; word pass may swap it
+      continue;
+    }
+
+    out.push(ch);
+  }
+
+  let result = out.join("");
+
+  // --- homoglyph word pass ------------------------------------------------
+  // Only substitute inside a token that already contains an ASCII Latin
+  // letter. A wholly Greek or Cyrillic word is somebody's actual language.
+  if (true){
+    result = result.replace(/\S+/gu, (tok) => {
+      if (!RE_LATIN.test(tok)) return tok;
+      let changed = tok;
+      for (const ch of Array.from(tok)){
+        const cp = ch.codePointAt(0);
+        if (HOMOGLYPH.has(cp)){
+          const [name, rep] = HOMOGLYPH.get(cp);
+          hits.push({cat:"homoglyph", cp, name, action: opts.homoglyph ? "replaced" : "kept",
+                     from: ch, to: rep, ctx: tok.slice(0,40)});
+          if (opts.homoglyph) changed = changed.split(ch).join(rep);
+        }
+      }
+      return changed;
+    });
+  }
+
+  // --- whitespace tidy ----------------------------------------------------
+  if (opts.tidy){
+    const crlf = (result.match(/\r\n/g) || []).length;
+    if (crlf){ hits.push({cat:"tidy", cp:0x000D, name:"CRLF LINE ENDING", action:"replaced", from:"CRLF", to:"LF", ctx:crlf + " line(s)"}); result = result.replace(/\r\n/g,"\n"); }
+    const lone = (result.match(/\r/g) || []).length;
+    if (lone){ hits.push({cat:"tidy", cp:0x000D, name:"LONE CARRIAGE RETURN", action:"replaced", from:"CR", to:"LF", ctx:lone + " occurrence(s)"}); result = result.replace(/\r/g,"\n"); }
+    const trail = (result.match(/[ \t]+$/gm) || []).length;
+    if (trail){ hits.push({cat:"tidy", cp:0x0020, name:"TRAILING WHITESPACE", action:"removed", from:"", to:"", ctx:trail + " line(s)"}); result = result.replace(/[ \t]+$/gm,""); }
+    const runs = (result.match(/\n{3,}/g) || []).length;
+    if (runs){ hits.push({cat:"tidy", cp:0x000A, name:"3+ CONSECUTIVE BLANK LINES", action:"replaced", from:"", to:"one blank line", ctx:runs + " run(s)"}); result = result.replace(/\n{3,}/g,"\n\n"); }
+    const dbl = (result.match(/[^\S\n]{2,}/g) || []).length;
+    if (dbl){ hits.push({cat:"tidy", cp:0x0020, name:"RUN OF 2+ SPACES", action:"replaced", from:"", to:"one space", ctx:dbl + " run(s)"}); result = result.replace(/[^\S\n]{2,}/g," "); }
+  }
+
+  return {result, hits, smuggled: smuggled.join("")};
+}
+
+function context(cps, i){
+  const a = Math.max(0, i - 22), b = Math.min(cps.length, i + 23);
+  const before = cps.slice(a, i).join("").replace(/\s+/g," ");
+  const after  = cps.slice(i + 1, b).join("").replace(/\s+/g," ");
+  return {before, after};
+}
+
+/* =========================================================================
+   DOCUMENT IMPORT: .docx and .html
+   A .docx is a ZIP of XML. The browser inflates it natively via DecompressionStream,
+   so no library is needed and the file never leaves the page. We pull out the prose
+   AND the metadata, because the metadata is the part people forget: author name,
+   company, total editing time and revision count all ship inside the file and
+   survive being emailed around.
+   ========================================================================= */
+const U32 = (b, o) => b[o] | (b[o+1] << 8) | (b[o+2] << 16) | (b[o+3] << 24);
+const U16 = (b, o) => b[o] | (b[o+1] << 8);
+
+async function readZip(buf){
+  const b = new Uint8Array(buf);
+  let eocd = -1;
+  for (let i = b.length - 22; i >= 0 && i > b.length - 22 - 65536; i--){
+    if (U32(b, i) === 0x06054b50){ eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("not a zip file");
+  const count = U16(b, eocd + 10);
+  let p = U32(b, eocd + 16);
+  const raw = new Map();
+  for (let n = 0; n < count; n++){
+    if (U32(b, p) !== 0x02014b50) break;
+    const method = U16(b, p + 10);
+    const csize  = U32(b, p + 20);
+    const nameLen = U16(b, p + 28), extraLen = U16(b, p + 30), cmtLen = U16(b, p + 32);
+    const lho = U32(b, p + 42);
+    const name = new TextDecoder().decode(b.subarray(p + 46, p + 46 + nameLen));
+    const lNameLen = U16(b, lho + 26), lExtraLen = U16(b, lho + 28);
+    const start = lho + 30 + lNameLen + lExtraLen;
+    raw.set(name, {method, data: b.subarray(start, start + csize)});
+    p += 46 + nameLen + extraLen + cmtLen;
+  }
+  // Only the parts a .docx keeps prose and metadata in. A zip can hold anything,
+  // and there is no reason to inflate the rest.
+  const WANTED = /^(word\/document\.xml|word\/comments\.xml|docProps\/.*\.xml|\[Content_Types\]\.xml)$/;
+  // Decompression bomb guard: a few hundred KB of zip can inflate to gigabytes and
+  // hang the tab. Cap what we will accept per entry and in total.
+  const MAX_ENTRY = 32 * 1024 * 1024, MAX_TOTAL = 64 * 1024 * 1024;
+  let total = 0;
+  const out = new Map();
+  for (const [name, rec] of raw){
+    if (!WANTED.test(name)) continue;
+    if (rec.method === 0){
+      if (rec.data.length > MAX_ENTRY) throw new Error(name + " is implausibly large; refusing to read it");
+      total += rec.data.length;
+      out.set(name, rec.data);
+    } else if (rec.method === 8){
+      const ds = new DecompressionStream("deflate-raw");
+      const ab = await new Response(new Blob([rec.data]).stream().pipeThrough(ds)).arrayBuffer();
+      if (ab.byteLength > MAX_ENTRY) throw new Error(name + " inflates to " + ab.byteLength + " bytes; refusing to read it");
+      total += ab.byteLength;
+      out.set(name, new Uint8Array(ab));
+    } else {
+      continue;                                    // unsupported method, skip
+    }
+    if (total > MAX_TOTAL) throw new Error("this archive inflates past the size limit; refusing to read it");
+  }
+  return out;
+}
+
+const xmlText = (u8) => u8 ? new TextDecoder("utf-8").decode(u8) : "";
+function tagVal(xml, tag){
+  const m = xml.match(new RegExp("<" + tag + "[^>]*>([\\s\\S]*?)<\\/" + tag + ">"));
+  return m ? m[1].trim() : "";
+}
+function unescapeHtml(s){
+  const ta = document.createElement("textarea");
+  ta.innerHTML = s;
+  return ta.value;
+}
+
+async function docxExtract(buf){
+  const zip = await readZip(buf);
+  const doc = xmlText(zip.get("word/document.xml"));
+  if (!doc) throw new Error("no word/document.xml, so this is not a .docx");
+
+  let text = doc
+    .replace(/<w:tab\b[^>]*\/?>/g, "\t")
+    .replace(/<w:br\b[^>]*\/?>/g, "\n")
+    .replace(/<\/w:p>/g, "\n\n")
+    .replace(/<[^>]+>/g, "");
+  text = unescapeHtml(text).replace(/\n{3,}/g, "\n\n").trim();
+
+  const core = xmlText(zip.get("docProps/core.xml"));
+  const app  = xmlText(zip.get("docProps/app.xml"));
+  const meta = [];
+  const add = (label, v) => { if (v) meta.push([label, v]); };
+  add("Author",             tagVal(core, "dc:creator"));
+  add("Last modified by",   tagVal(core, "cp:lastModifiedBy"));
+  add("Title",              tagVal(core, "dc:title"));
+  add("Subject",            tagVal(core, "dc:subject"));
+  add("Keywords",           tagVal(core, "cp:keywords"));
+  add("Description",        tagVal(core, "dc:description"));
+  add("Category",           tagVal(core, "cp:category"));
+  add("Revision number",    tagVal(core, "cp:revision"));
+  add("Created",            tagVal(core, "dcterms:created"));
+  add("Modified",           tagVal(core, "dcterms:modified"));
+  add("Last printed",       tagVal(core, "cp:lastPrinted"));
+  add("Company",            tagVal(app, "Company"));
+  add("Manager",            tagVal(app, "Manager"));
+  add("Application",        tagVal(app, "Application"));
+  add("Template",           tagVal(app, "Template"));
+  const mins = tagVal(app, "TotalTime");
+  if (mins) meta.push(["Total editing time", mins + " minutes"]);
+
+  const extras = [];
+  if (zip.has("word/comments.xml")) extras.push("reviewer comments");
+  if (/<w:ins\b|<w:del\b/.test(doc)) extras.push("tracked changes");
+  if (zip.has("docProps/custom.xml")) extras.push("custom document properties");
+  return {text: text, meta: meta, extras: extras};
+}
+
+function htmlExtract(src){
+  const meta = [];
+  let m;
+  const metaRx = /<meta[^>]+name=["']?(author|generator|dc\.creator)["']?[^>]+content=["']([^"']*)/gi;
+  while ((m = metaRx.exec(src))) meta.push(["Meta " + m[1], m[2].trim().slice(0, 120)]);
+  const cmtRx = /<!--([\s\S]{0,110}?)-->/g;
+  while ((m = cmtRx.exec(src))) {
+    const c = m[1].trim();
+    if (c) meta.push(["HTML comment", c.slice(0, 110)]);
+  }
+  const dataAttrs = (src.match(/\sdata-[a-z-]+=/gi) || []).length;
+  if (dataAttrs) meta.push(["data-* attributes", String(dataAttrs) + " removed"]);
+
+  let t = src
+    .replace(/<(script|style|noscript)\b[\s\S]*?<\/\1>/gi, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(p|div|h[1-6]|li|blockquote|tr)>/gi, "\n\n")
+    .replace(/<[^>]+>/g, "");
+  return {text: unescapeHtml(t).replace(/\n{3,}/g, "\n\n").trim(), meta: meta, extras: []};
+}
+
+/* =========================================================================
+   UI
+   ========================================================================= */
+const $ = (id) => document.getElementById(id);
+const el = (tag, cls, txt) => { const n = document.createElement(tag); if (cls) n.className = cls; if (txt != null) n.textContent = txt; return n; };
+
+const state = {opts:{dash:" - "}, last:""};
+
+// build the switches
+CATEGORIES.forEach(c => {
+  state.opts[c.id] = true;
+  const wrap = el("div","opt");
+  const cb = el("input"); cb.type = "checkbox"; cb.id = "opt_" + c.id; cb.checked = true;
+  cb.addEventListener("change", () => { state.opts[c.id] = cb.checked; if ($("input").value) run(); });
+  const lab = el("label"); lab.htmlFor = cb.id;
+  const b = el("b", null, c.label); b.style.color = c.color === "var(--neo-gray)" ? "var(--neo-black)" : c.color;
+  lab.appendChild(b); lab.appendChild(document.createTextNode(c.why));
+  wrap.appendChild(cb); wrap.appendChild(lab);
+  $("optList").appendChild(wrap);
+});
+
+$("dashMode").addEventListener("change", e => { state.opts.dash = e.target.value; if ($("input").value) run(); });
+
+function toast(msg){
+  const t = $("toast"); t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast._t); toast._t = setTimeout(() => { t.style.display = "none"; }, 1800);
+}
+
+function fmt(n){ return n.toLocaleString("en-US"); }
+
+function run(){
+  const src = $("input").value;
+  const {result, hits, smuggled} = wash(src, state.opts);
+  $("output").value = result;
+  state.last = result;
+
+  $("inMeter").textContent  = fmt(Array.from(src).length) + " chars";
+  $("outMeter").textContent = fmt(Array.from(result).length) + " chars";
+  $("copy").disabled = $("download").disabled = !result;
+
+  const acted = hits.filter(h => h.action !== "kept");
+  const kept  = hits.filter(h => h.action === "kept");
+
+  // verdict
+  const v = $("verdict"), vt = $("verdictText"), vs = $("verdictSub");
+  v.className = "verdict " + (!src.trim() ? "verdict--idle" : acted.length ? "verdict--dirty" : "verdict--clean");
+  if (!src.trim()){
+    vt.textContent = "Nothing washed yet";
+    vs.textContent = "Paste something and press Wash it.";
+  } else if (acted.length){
+    const cats = new Set(acted.map(h => h.cat)).size;
+    vt.textContent = fmt(acted.length) + " change" + (acted.length === 1 ? "" : "s") + " across " + cats + " categor" + (cats === 1 ? "y" : "ies");
+    vs.textContent = "Every one is itemized below with its codepoint and its surrounding text." + (kept.length ? " " + fmt(kept.length) + " deliberately left in place." : "");
+  } else {
+    vt.textContent = "Clean";
+    vs.textContent = "No invisible characters, homoglyphs or machine typography found. Character level only — see the limits below.";
+  }
+
+  renderSmuggled(smuggled);
+  renderFindings(hits);
+}
+
+function renderSmuggled(payload){
+  const host = $("smuggled"); host.innerHTML = "";
+  if (!payload) return;
+  const s = el("section","note note--smuggle");
+  s.appendChild(el("h2", null, "Hidden text was smuggled into this passage"));
+  const p1 = el("p", null, "The Unicode tag block carried a payload. Decoded in full, it reads:");
+  const pre = el("p");
+  const code = el("code", null, payload); code.style.display = "block"; code.style.padding = ".5rem"; code.style.overflowWrap = "anywhere";
+  pre.appendChild(code);
+  const p2 = el("p", null, "This was invisible in every editor and would have traveled with the text anywhere you pasted it. It has been removed from the washed output.");
+  s.appendChild(p1); s.appendChild(pre); s.appendChild(p2);
+  host.appendChild(s);
+}
+
+function renderFindings(hits){
+  const host = $("findings"); host.innerHTML = "";
+  if (!hits.length) return;
+
+  for (const cat of CATEGORIES){
+    const mine = hits.filter(h => h.cat === cat.id);
+    if (!mine.length) continue;
+    const acted = mine.filter(h => h.action !== "kept");
+    const kept  = mine.filter(h => h.action === "kept");
+
+    const box = el("div","finding");
+    const bar = el("div","finding__bar");
+    const swatch = el("span"); swatch.style.cssText = "width:20px;height:20px;flex:0 0 20px;border:2px solid #000;background:" + cat.color;
+    bar.appendChild(swatch);
+    bar.appendChild(el("h3", null, cat.label));
+    if (acted.length) bar.appendChild(el("span","tally tally--hit", fmt(acted.length) + " " + (acted[0].action === "removed" ? "removed" : "changed")));
+    if (kept.length)  bar.appendChild(el("span","tally tally--kept", fmt(kept.length) + " kept"));
+    box.appendChild(bar);
+    box.appendChild(el("div","finding__why", cat.why));
+
+    // group by codepoint so a 400-hit run reads as one line, not 400
+    const byCp = new Map();
+    for (const h of mine){
+      const key = h.cp + "|" + h.action;
+      if (!byCp.has(key)) byCp.set(key, []);
+      byCp.get(key).push(h);
+    }
+    const hitsBox = el("div","hits");
+    let shown = 0;
+    for (const [, group] of [...byCp.entries()].sort((a,b) => b[1].length - a[1].length)){
+      const h = group[0];
+      const line = el("div","hit");
+      line.appendChild(Object.assign(el("span","cp", hex(h.cp)), {}));
+      line.appendChild(document.createTextNode(" " + h.name + " ×" + fmt(group.length) + " — " + h.action));
+      if (h.to) line.appendChild(document.createTextNode(' as "' + h.to + '"'));
+      if (h.ctx && typeof h.ctx === "object" && (h.ctx.before || h.ctx.after)){
+        const c = el("div","ctx");
+        c.appendChild(document.createTextNode("…" + h.ctx.before));
+        c.appendChild(el("span","mark", h.action === "kept" ? "[" + hex(h.cp) + "]" : "█"));
+        c.appendChild(document.createTextNode(h.ctx.after + "…"));
+        line.appendChild(c);
+      } else if (typeof h.ctx === "string" && h.ctx){
+        line.appendChild(el("div","ctx", "in: " + h.ctx));
+      }
+      hitsBox.appendChild(line);
+      if (++shown >= 12) break;
+    }
+    box.appendChild(hitsBox);
+    if (byCp.size > shown) box.appendChild(el("div","more", (byCp.size - shown) + " further distinct codepoint(s) in this category, all handled the same way."));
+    host.appendChild(box);
+  }
+}
+
+/* ---------- wiring ---------- */
+$("run").addEventListener("click", run);
+$("input").addEventListener("input", () => { $("inMeter").textContent = fmt(Array.from($("input").value).length) + " chars"; });
+
+$("clear").addEventListener("click", () => {
+  $("input").value = ""; $("output").value = ""; state.last = "";
+  $("findings").innerHTML = ""; $("smuggled").innerHTML = "";
+  $("inMeter").textContent = $("outMeter").textContent = "0 chars";
+  $("copy").disabled = $("download").disabled = true;
+  $("verdict").className = "verdict verdict--idle";
+  $("verdictText").textContent = "Nothing washed yet";
+  $("verdictSub").textContent = "Paste something and press Wash it.";
+  $("input").focus();
+});
+
+$("copy").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(state.last); toast("Copied"); }
+  catch { $("output").select(); document.execCommand("copy"); toast("Copied"); }
+});
+
+$("download").addEventListener("click", () => {
+  const blob = new Blob([state.last], {type:"text/plain;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "washed.txt";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+
+$("pick").addEventListener("click", () => $("file").click());
+$("file").addEventListener("change", e => { const f = e.target.files[0]; if (f) readFile(f); });
+
+function readFile(f){
+  const isDocx = /\.docx$/i.test(f.name);
+  const isHtml = /\.html?$/i.test(f.name);
+  const r = new FileReader();
+  r.onload = async () => {
+    let res;
+    try {
+      if (isDocx) res = await docxExtract(r.result);
+      else if (isHtml) res = htmlExtract(String(r.result));
+      else res = {text: String(r.result), meta: [], extras: []};
+    } catch (e){
+      renderDocMeta([], [], "Could not read " + f.name + ": " + e.message);
+      toast("Could not read that file");
+      return;
+    }
+    renderDocMeta(res.meta, res.extras, "");
+    $("input").value = res.text;
+    $("inMeter").textContent = fmt(Array.from(res.text).length) + " chars";
+    run();
+    toast("Loaded " + f.name);
+  };
+  if (isDocx) r.readAsArrayBuffer(f); else r.readAsText(f, "utf-8");
+}
+
+/* Report metadata found on import. None of it is in the prose, so washing cannot
+   touch it. It is shown so you know what was riding along inside the file. */
+function renderDocMeta(meta, extras, error){
+  const host = $("docmeta"); host.innerHTML = "";
+  if (error){
+    const s = el("section","note note--warn");
+    s.appendChild(el("h2", null, "Import failed"));
+    s.appendChild(el("p", null, error));
+    host.appendChild(s); return;
+  }
+  if (!meta.length && !extras.length) return;
+  const s = el("section","note note--smuggle");
+  s.appendChild(el("h2", null, "This file carried metadata"));
+  s.appendChild(el("p", null, "None of this was visible in the document text. It was stored inside the file and would have traveled with it to anyone you sent it to."));
+  const box = el("div");
+  box.style.cssText = "font-family:var(--font-neo-mono);font-size:.8rem";
+  for (const pair of meta){
+    const line = el("div"); line.style.padding = ".2rem 0";
+    line.appendChild(el("span","cp", pair[0]));
+    line.appendChild(document.createTextNode(" " + pair[1]));
+    box.appendChild(line);
+  }
+  for (const x of extras){
+    const line = el("div"); line.style.padding = ".2rem 0";
+    line.appendChild(el("span","cp", "ALSO PRESENT"));
+    line.appendChild(document.createTextNode(" " + x));
+    box.appendChild(line);
+  }
+  s.appendChild(box);
+  s.appendChild(el("p", null, "The washed text below is plain prose, so copying it out of here leaves all of the above behind."));
+  host.appendChild(s);
+}
+
+// drag and drop
+["dragenter","dragover"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); document.body.classList.add("dropping"); }));
+["dragleave","drop"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); if (ev === "drop" || e.relatedTarget === null) document.body.classList.remove("dropping"); }));
+document.addEventListener("drop", e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
+
+// keyboard: ctrl/cmd+enter runs
+document.addEventListener("keydown", e => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter"){ e.preventDefault(); run(); } });
+
+/* ---------- demo sample: one of everything ---------- */
+$("demo").addEventListener("click", () => {
+  const S = String.fromCodePoint;
+  const tag = (s) => Array.from(s).map(c => S(0xE0000 + c.charCodeAt(0))).join("");
+  const sample =
+    "The kiln cooled too fast" + S(0x200B) + " and the glaze crazed" + S(0x2014) + "every piece in the load." + tag("drafted-by:model-x") + "\n\n" +
+    "I timed the second firing" + S(0x00A0) + "against the first: 9" + S(0x2009) + "hours down from 14." + S(0x200D) + " My" + S(0xFE01) + " notes from that week say " + S(0x201C) + "hold at 1040" + S(0x201D) + S(0x2026) + "\n\n" +
+    "The " + S(0x0441) + "olor shift was " + S(0x043E) + "bvious in daylight" + S(0x00AD) + ", less so under the sh" + S(0x043E) + "p lights." + S(0x202E) + "  \n" +
+    "Second firing" + S(0x2013) + "same clay, same shelf" + S(0x2192) + "no crazing at all.   \n\n\n\n" +
+    "Emoji stay intact: 👩" + S(0x200D) + "💻 and ❤" + S(0xFE0F) + " both survive the wash.";
+  $("input").value = sample;
+  run();
+  toast("Dirty sample loaded");
+  $("findings").scrollIntoView({behavior:"smooth", block:"start"});
+});
+</script>
+</body>
+</html>
