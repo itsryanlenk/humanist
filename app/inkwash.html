@@ -68,7 +68,7 @@ body{
 .btn:active{box-shadow:2px 2px 0 var(--neo-black);transform:translate(2px,2px)}
 .btn:focus-visible{outline:3px solid var(--neo-blue);outline-offset:2px}
 .btn--primary{background:var(--neo-yellow)}
-.btn--go{background:var(--neo-green);color:var(--neo-white)}
+.btn--go{background:var(--neo-green);color:var(--neo-black)}
 .btn--ghost{background:var(--neo-cream)}
 .btn[disabled]{background:var(--neo-gray);cursor:not-allowed;box-shadow:2px 2px 0 var(--neo-black);transform:none}
 
@@ -91,6 +91,7 @@ header.top{
   justify-content:space-between;
 }
 .brand{
+  margin-bottom:.45rem;
   font-family:var(--font-neo-display);
   font-size:clamp(1.6rem,5vw,2.4rem);
   line-height:.95;
@@ -913,7 +914,14 @@ CATEGORIES.forEach(c => {
   const cb = el("input"); cb.type = "checkbox"; cb.id = "opt_" + c.id; cb.checked = true;
   cb.addEventListener("change", () => { state.opts[c.id] = cb.checked; if ($("input").value) run(); });
   const lab = el("label"); lab.htmlFor = cb.id;
-  const b = el("b", null, c.label); b.style.color = c.color === "var(--neo-gray)" ? "var(--neo-black)" : c.color;
+  const b = el("b", null, c.label);
+  // Chip, not coloured text. Colouring the label text with the swatch colour put yellow on
+  // white at 1.22:1 and failed AA on seven of eight categories. Dark swatches take white text:
+  // purple with black text still only measures 3.33:1.
+  const DARK_SWATCH = new Set(["var(--neo-purple)"]);   // blue reads better with black: 6.72 vs 3.12
+  b.style.cssText = "background:" + c.color
+    + ";color:" + (DARK_SWATCH.has(c.color) ? "var(--neo-white)" : "var(--neo-black)")
+    + ";padding:0 .35rem;border:2px solid var(--neo-black)";
   lab.appendChild(b); lab.appendChild(document.createTextNode(c.why));
   wrap.appendChild(cb); wrap.appendChild(lab);
   $("optList").appendChild(wrap);
