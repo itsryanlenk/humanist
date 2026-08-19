@@ -177,7 +177,7 @@ The rubric agrees, and by a wide margin: gate-clean scores **87.1 / 100**
 human prose.
 
 **Now set that beside the prior sweep in this same corpus**
-(`../sweep/00-sweep-synthesis.md`, `../sweep/RESULTS.md`): judges called the
+(the detection sweep summarized in [README.md](README.md)): judges called the
 human-control arm human **143 times out of 143** — a 0.0% false-positive rate,
 95% CI 0.0–2.6%, specificity 100.0%, mean confidence 4.95/5. The same
 human passages that lose 18/18 on quality were identified as human **every

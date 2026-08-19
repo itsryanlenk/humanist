@@ -915,7 +915,7 @@ CATEGORIES.forEach(c => {
   cb.addEventListener("change", () => { state.opts[c.id] = cb.checked; if ($("input").value) run(); });
   const lab = el("label"); lab.htmlFor = cb.id;
   const b = el("b", null, c.label);
-  // Chip, not coloured text. Colouring the label text with the swatch colour put yellow on
+  // Chip, not colored text. Coloring the label text with the swatch color put yellow on
   // white at 1.22:1 and failed AA on seven of eight categories. Dark swatches take white text:
   // purple with black text still only measures 3.33:1.
   const DARK_SWATCH = new Set(["var(--neo-purple)"]);   // blue reads better with black: 6.72 vs 3.12
