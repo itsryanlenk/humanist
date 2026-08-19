@@ -1,0 +1,80 @@
+<header class="top">
+  <div>
+    <div class="brand">INK<em>WASH</em></div>
+    <p class="tagline">Strips invisible characters and machine typography out of finished prose. <b>Runs entirely in this page.</b> Nothing you paste is uploaded, stored, or sent anywhere.</p>
+  </div>
+  <button class="btn btn--ghost" id="demo" type="button">Load a dirty sample</button>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="panel">
+      <div class="panel__head"><span>1 &mdash; Paste your finished prose</span><span class="meter" id="inMeter">0 chars</span></div>
+      <textarea id="input" spellcheck="false" placeholder="Paste here, or drop a .txt / .md / .html / .docx file onto this box."></textarea>
+      <div class="row">
+        <button class="btn btn--go" id="run" type="button">Wash it</button>
+        <button class="btn" id="pick" type="button">Open file</button>
+        <button class="btn btn--ghost" id="clear" type="button">Clear</button>
+        <input type="file" id="file" accept=".txt,.md,.markdown,.html,.htm,.rtf,.docx,text/*" class="sr">
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__head"><span>2 &mdash; Washed output</span><span class="meter" id="outMeter">0 chars</span></div>
+      <textarea id="output" spellcheck="false" readonly placeholder="The cleaned text lands here."></textarea>
+      <div class="row">
+        <button class="btn btn--primary" id="copy" type="button" disabled>Copy</button>
+        <button class="btn" id="download" type="button" disabled>Save .txt</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="verdict verdict--idle" id="verdict" role="status" aria-live="polite">
+    <span id="verdictText">Nothing washed yet</span>
+    <small id="verdictSub">Paste something and press Wash it.</small>
+  </div>
+
+  <div id="smuggled"></div>
+  <div id="docmeta"></div>
+
+  <section class="findings" id="findings" aria-label="What was found"></section>
+
+  <section class="opts bx" aria-label="Options">
+    <div class="opt" style="background:var(--neo-black);color:var(--neo-white);border-bottom-color:var(--neo-white)">
+      <label style="cursor:default"><b style="color:var(--neo-yellow)">What to strip</b>Every switch is on by default. Turn one off and its hits are still reported, just left in the text.</label>
+    </div>
+    <div id="optList"></div>
+    <div class="opt">
+      <span style="width:22px;flex:0 0 22px"></span>
+      <label for="dashMode"><b>Em dash becomes</b>
+        <select id="dashMode">
+          <option value=" - " selected>a spaced hyphen &mdash; word - word</option>
+          <option value="--">a typed double hyphen &mdash; word--word</option>
+          <option value=", ">a comma &mdash; word, word</option>
+          <option value="KEEP">leave em dashes alone</option>
+        </select>
+        <span style="display:block;margin-top:.3rem">No substitution is right every time. An em dash usually wants the sentence rebuilt around it, and rebuilding sentences is the skill's job, not this page's.</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="note note--warn">
+    <h2>What this cannot do</h2>
+    <p>Inkwash works on <b>characters</b>. It finds and removes things that are literally present in your file: zero-width characters, smuggled Unicode tag bytes, homoglyph letters borrowed from other alphabets, exotic spaces, and machine typography. Every one of those is deterministic, so every change is itemized above and you can verify it yourself.</p>
+    <p><b>It cannot remove a statistical watermark.</b> Schemes such as SynthID-Text and green-list token biasing do not add characters &mdash; they live in <i>which words were chosen</i>, spread across the whole passage. No character-level tool can touch them, and any tool claiming otherwise is guessing. Changing that signal requires rewriting the prose, which is what the HUMANIST skill's rewrite pass is for.</p>
+    <p>This is a hygiene tool, not a disguise. Clean text still reads exactly as well or as badly as it was written.</p>
+  </section>
+
+  <section class="note">
+    <h2>Why invisible characters end up in your writing</h2>
+    <p>Most of them are not adversarial. Word processors insert non-breaking spaces and soft hyphens for layout. Web editors leave zero-width spaces at paste boundaries. Copying out of a rendered page picks up whatever the CSS put there. Several AI writing tools emit zero-width characters or unusual spacing as a side effect of their tokeniser.</p>
+    <p>They matter anyway: they break search and find-and-replace, corrupt diffs, defeat word counts, survive into your CMS, and carry provenance you did not choose to publish. The <code>U+E0000</code> tag block is the one genuinely adversarial case &mdash; it can encode arbitrary hidden text inside a passage that looks completely ordinary. If Inkwash finds any, it decodes and shows you the message.</p>
+  </section>
+</main>
+
+<footer>
+  <hr>
+  <p><b>INKWASH</b> is the companion tool to the HUMANIST writing skill. Single file, no network, no dependencies, no telemetry. Open the source and read it &mdash; the whole program is in the page you are looking at.</p>
+</footer>
+
+<div id="toast" role="status" aria-live="polite"></div>
