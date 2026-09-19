@@ -57,3 +57,19 @@ jobs:
           python-version: "3.13"
       - name: Human-prose false-positive ceiling
         run: python tests/fp_guard.py
+
+  # Every branch is judged against the checker on main, on the human and the
+  # machine corpora, and the delta is printed into the run. Rules only here: the
+  # Jev half needs a key and is run by hand with --jev. --gate turns a rise in
+  # the human false-positive density, or a fall in separation, into a red build.
+  ab-against-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Fetch the baseline
+        run: git fetch --depth=1 origin main:refs/remotes/origin/main
+      - name: A/B the branch against main
+        run: python evals/ab_against_main.py --baseline origin/main --gate
