@@ -4,6 +4,7 @@ humanist.py - a mechanical prose sweep for AI writing tells.
 
   python humanist.py <draft.md> [--strip-quotes] [--lenient] [--mode post]
                      [--register NAME] [--config PATH] [--json]
+                     [--jev [--genre NAME]]
   python humanist.py --calibrate <dir-of-your-own-writing> [--register NAME]
   python humanist.py --selftest
   python humanist.py --rules
@@ -62,6 +63,12 @@ a normal approximation to the Poisson interval, widened 15%. Until calibrated,
 
 SAMPLING LAW: a rare-event rate cannot be tested below the word count that yields
 an expected count of ~3. Below that the marker prints UNTESTABLE, not a number.
+
+THE JEV READ (--jev). The tells that survive a clean sweep are rhythmic, and no
+regex reaches them honestly. jev_read.py asks TypeSafe's Jev one yes/no question
+per paragraph per tell and reports the densities; see that file. It needs
+TYPESAFE_API_KEY, exits 2 rather than printing a verdict when it cannot run, and
+never changes the FAIL count or the exit code of a run that does.
 """
 import argparse
 import json
@@ -916,6 +923,11 @@ def parse_args(argv):
     ap.add_argument("--config", metavar="PATH",
                     help=f"config file (default: ./{CONFIG_NAME}, then beside this script)")
     ap.add_argument("--json", action="store_true", help="emit findings as JSON on stdout")
+    ap.add_argument("--jev", action="store_true",
+                    help="also run the Jev read: the rhythm tells as typed judgments via TypeSafe "
+                         "(needs TYPESAFE_API_KEY; reported, never counted toward the exit code)")
+    ap.add_argument("--genre", default="unspecified prose",
+                    help="genre for the Jev read's template question: essay, how-to, review, email, marketing, social")
     ap.add_argument("--rules", action="store_true", help="list every rule ID, severity and register, then exit")
     ap.add_argument("--selftest", action="store_true", help="run embedded fixtures; exit 0 only if all behave")
     ap.add_argument("--version", action="version", version=f"humanist {__version__}")
@@ -952,19 +964,36 @@ def main(argv=None):
     res = analyze(raw, cfg["house"], lenient=args.lenient, strip_quotes=args.strip_quotes)
     _, _, blabel, _ = band_status(cfg, args.register)
 
+    # The Jev read runs BEFORE anything is printed, so a missing key or a dead
+    # network exits 2 with nothing on stdout that could be mistaken for a verdict.
+    # It reads the same stripped text the rules saw, and it changes no count.
+    jev = None
+    if args.jev:
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import jev_read
+        try:
+            jev = jev_read.read(res["t"], genre=args.genre)
+        except jev_read.JevUnavailable as e:
+            die(str(e))
+
     if args.json:
-        print(json.dumps({
+        payload = {
             "version": __version__, "file": args.draft, "words": res["words"],
             "fk_grade": res["grade"], "fails": res["fails"], "warns": res["warns"],
             "config": cfg["path"] if cfg["loaded"] else None,
             "rules_active": res["active"], "rules_shipped": len(CHECKS),
             "findings": [{"id": r, "name": n, "severity": s, "count": c, "example": e}
                          for r, n, s, c, e in res["findings"]],
-        }, indent=1))
+        }
+        if jev is not None:
+            payload["jev"] = jev
+        print(json.dumps(payload, indent=1))
     else:
         report(res, cfg, cfg["house"], args, blabel)
         if args.mode == "post":
             report_post(res, cfg, args.register)
+        if jev is not None:
+            jev_read.report(jev)
         print(f"\nRESULT: {res['fails']} FAIL, {res['warns']} WARN. "
               f"{'CLEAN.' if res['fails'] == 0 else 'Fix the FAILs before shipping.'}")
         print(MANUAL_TAIL)
