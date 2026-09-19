@@ -22,6 +22,15 @@ trials against the raw draft.**
 duplicate sentences and bold-bullet counts, and **it never edits**. Read the
 [honest note on this stage](#the-checker-stage-is-not-proven) before relying on it.
 
+**The Jev read.** `jev_read.py`, opt-in behind `--jev` and a TypeSafe API key. The
+tells that survive a clean checker run are rhythmic, and a regex cannot judge
+whether a final sentence is an aphorism. A System One model can: Jev returns a
+calibrated probability for a narrow yes/no question and generates nothing. The read
+asks one such question per paragraph for each of the four paragraph-scale rhythm
+tells, three more about the whole piece, and a four-level texture score, and it
+reports densities. It never edits and never changes the exit code. **Its effect is
+unmeasured**; the script that measures it is below.
+
 **The composition read.** Five tells stay manual forever, because no regular
 expression catches them without lying about its precision: dead metaphor, fractal
 summaries, analogy stacking, one-point dilution, near-verbatim repetition.
@@ -55,10 +64,37 @@ python humanist.py draft.md --json             # machine-readable output
 # calibrate voice bands from your own published writing
 python humanist.py --calibrate my-writing/ --register general
 python humanist.py draft.md --mode post --register general
+
+# the Jev read: rhythm tells as typed probabilities (needs TYPESAFE_API_KEY)
+python humanist.py draft.md --jev --genre essay
 ```
 
 FAIL does not ship in public copy and sets exit 1. WARN is judged in context and
 counted. Exit 2 means the tool could not do its job, and is never a verdict.
+
+## Judging a branch against main
+
+```bash
+python evals/ab_against_main.py            # rules only, offline
+python evals/ab_against_main.py --jev      # plus the Jev read; caches by text hash
+python evals/ab_against_main.py --gate     # exit 1 if the branch got worse
+```
+
+The script loads `humanist.py` from `git main` as a second module and sweeps both
+versions over the same two corpora: the 24 known-human documents in
+`tests/fp-corpus/` and the six machine-drafted passages in `tests/ai-corpus/`. It
+prints FAIL and WARN density per class, the blocked fraction, the machine-minus-human
+separation, and every document whose verdict changed. CI runs it on every pull
+request. With `--jev` it adds the Jev read's texture score and tell densities per
+class and the rank AUC of each for telling the classes apart.
+
+The offline run already says something. On the six machine drafts the shipped rules
+raise **0 FAIL and 3 WARN in 1,798 words**; on the human corpus, 0.07 FAIL and 9.25
+WARN per thousand. Raw output from a current model is CLEAN by the lexical rules,
+and its tells are the rhythmic ones: a chiasmus positioning line, an enumeration
+announced as three, a paragraph closing on an epigram. Six documents by one author
+prove existence and nothing finer; `--machine DIR` points it at a corpus
+that could.
 
 ## What the studies say
 
@@ -167,6 +203,7 @@ on the page rather than in the footnotes.
 plugins/humanist/skills/humanist/
     SKILL.md              the pipeline orchestrator
     humanist.py           the checker and calibration
+    jev_read.py           the rhythm tells as typed judgments, via TypeSafe's Jev
     ai-tropes.md          the trope inventory, including the rhythm tells
     config.example.json   worked configuration examples
     tools/html2prose.py   CMS body HTML to checker-ready text
@@ -177,11 +214,15 @@ app/
     test-docx.mjs         11 document-import tests
 tests/
     test_humanist.py      43 regression tests, one per fixed defect
+    test_jev_read.py      29 tests for the Jev read, all against a fake transport
     fp_guard.py           the false-positive CI gate
     fp-corpus/            24 human documents with full provenance
+    ai-corpus/            6 machine drafts, one per study register, with provenance
+evals/ab_against_main.py  judge a branch against the checker on main
 scripts/validate_repo.py  structure, manifests, references, privacy, spelling
 docs/evals/               the studies, including the negative results
 docs/attribution.md       the full third-party inventory
+.agents/skills/typesafe-ai/  the TypeSafe agent skill, for agents working on this tree
 ```
 
 ## Configuration
@@ -225,3 +266,8 @@ endorsed by any of them.
   base rate, expect roughly a third to be over-rated.
 - **25 of the shipped rules never fired on the false-positive corpus**, so their
   false-positive rate is unmeasured. A zero for those rules is evidence of nothing.
+- **The Jev read has no reading on it.** It has run against a fake transport and
+  the two committed corpora offline, and against no model. Whether its texture
+  score separates the classes, and at what false-positive cost on the human
+  corpus, is what `evals/ab_against_main.py --jev` exists to report. The machine
+  corpus it would report on is six passages by one author.
