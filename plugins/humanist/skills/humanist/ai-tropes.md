@@ -197,8 +197,13 @@ top three are what it does not, and they grow. That is the whole explanation for
 why the detection number barely moves, and it is the most useful thing this
 project has measured.
 
-None of these is mechanically checkable without lying about precision. They are
-read-aloud checks, and they are the ones that matter most.
+None of these is checkable by a regular expression without lying about precision.
+They are read-aloud checks, and they are the ones that matter most. Since the
+study, `jev_read.py` asks seven of them as typed yes/no questions to TypeSafe's
+Jev, one per paragraph where the tell lives in a paragraph, and reports the
+probabilities as densities (`--jev`). That is a second instrument for the read,
+with no measurement behind it yet, and it changes nothing about what the read
+owes: the probabilities say where to look, and the reading decides.
 
 **How these were vetted.** With zero false positives in the study there is no
 measured set of "tells that misfire on human prose", so the substitute is a

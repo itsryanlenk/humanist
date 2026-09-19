@@ -9,8 +9,9 @@ description: |
   AI draft", "edit this into something publishable", "remove the AI slop", "this
   reads like ChatGPT wrote it", "why does this sound robotic", "tighten this before
   it goes live", "make this draft less generic". Runs a rewrite pass, a mechanical
-  checker that reports and never edits, and a composition read for the tells no
-  regular expression catches. Also covers quoted sources, web-copy extraction, and
+  checker that reports and never edits, an optional Jev read (TypeSafe System One)
+  that scores the rhythm tells as typed probabilities, and a composition read for
+  what is left. Also covers quoted sources, web-copy extraction, and
   calibrating the checker to the author's own published voice. It does NOT detect
   whether text was AI-generated, does NOT make writing pass as human, and does NOT
   defeat AI-detection or watermarking.
@@ -105,6 +106,11 @@ tells, the not-X-but-Y antithesis above all, any single instance is usually fine
 and the pattern is what gives a draft away. One is nothing. Six in eight hundred
 words is the tell.
 
+**Know what a clean sweep does and does not cover.** Swept over the six raw
+machine drafts in `tests/ai-corpus/`, the rules raise 0 FAIL and 3 WARN in 1,798
+words. The drafts are not clean; their tells are rhythmic, and the rules are
+lexical. That is what the next stage is for.
+
 **Exit codes.** 0 clean, 1 FAILs remain, 2 the tool could not do its job. Never
 treat 2 as a verdict; it means the run did not happen.
 
@@ -115,6 +121,42 @@ did act the preference could not be separated from chance. Treat its output as
 **material for the composition read**, which is what it is good for, rather than as
 a stage that improves the draft on its own. Its clean report is not evidence the
 prose is finished.
+
+### Step 2b: the Jev read (optional, needs a key)
+
+```bash
+export TYPESAFE_API_KEY=...        # console.typesafe.ai
+python humanist.py draft.md --jev --genre essay
+```
+
+The tells that survive a clean sweep are the ones in `ai-tropes.md` under "The
+rhythm tells": the aphoristic closer, the triad, the announced thesis, clause
+symmetry, a piece with no friction. A regular expression cannot judge "is this
+last sentence an aphorism?" A System One model can: TypeSafe's Jev returns a
+calibrated probability for a yes/no question about a passage and generates
+nothing. So `jev_read.py` cuts the draft into paragraphs, pulls each final
+sentence, and asks one narrow question per paragraph per tell, all in one request.
+Counting, variance and the uniform-beat-rate figure stay in code, because the
+model's own documentation says it does not count reliably.
+
+What comes back is a density per tell ("closer: 5 of 6 paragraphs, mean p 0.81"),
+three whole-piece probabilities, and a four-level texture score from "uneven and
+particular" to "uniform throughout". **It reports, it never edits, and it never
+changes the FAIL count or the exit code.** Without a key it exits 2 before printing
+anything, so a missing key cannot pass for a clean run.
+
+Read the densities the way you read WARN counts: as material for step 3, pointed
+at the paragraphs with the highest probabilities. A closer at p=0.9 is a sentence
+to reread aloud, and the read decides.
+
+**What this stage is known to do, honestly: nothing yet.** It has been run against
+a fake transport and against nothing else. `evals/ab_against_main.py --jev`
+measures it on the two committed corpora and reports how well each metric
+separates human prose from machine drafts. Until that has been run with a key,
+the stage is an instrument with no reading on it, and this file will say so until
+it has one. Cost, for planning: the model page prices input at $0.042 per million
+tokens, and a thousand-word draft is on the order of ten thousand tokens across
+its questions.
 
 ### Step 3: the composition read
 

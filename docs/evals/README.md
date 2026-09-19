@@ -25,6 +25,7 @@ rather than at passing.
   the pipeline earns its keep, and the answer is not both.
 - The false-positive audit that drove the rule recalibration is reproducible
   directly: `python tests/fp_guard.py --report`.
+- **Study 4 is an instrument with no reading on it yet.** See the last section.
 
 ---
 
@@ -320,3 +321,58 @@ unambiguous but the ceiling is not pinned. Judges and prose come from one model
 family, and an editor model preferring a passage is not a human reader preferring
 it. Twelve trials compared identical files and are excluded from the stage-
 attribution estimate rather than quietly averaged in.
+
+
+---
+
+## Study 4: is Jev a judge with range?
+
+The synthesis for study 1 ends with a list of next steps, and the first is
+"re-run against a judge that is not saturated." A binary LLM judge pinned to 0%
+on one rail and 98.8% on the other cannot measure whether anything moved.
+
+TypeSafe's Jev is a different kind of instrument: it returns a calibrated
+probability for a narrow yes/no question and generates no text. `jev_read.py`
+asks it, per paragraph, the four paragraph-scale tells from the study's own
+ranked list (aphoristic closer, triad, announced thesis, clause symmetry), three
+piece-scale ones (no friction, template completion, planted callback), and a
+four-level texture Score. Counts and variances stay in code. The per-paragraph
+probabilities are the dynamic range study 1 lacked.
+
+### Design
+
+`evals/ab_against_main.py --jev` runs the read over `tests/fp-corpus/` (24 human
+documents, 107k words) and `tests/ai-corpus/` (6 raw machine drafts, one per
+register in study 1, 1,798 words, provenance in `_manifest.json`). For every
+metric it reports the mean per class and the rank AUC: the probability that a
+randomly chosen machine document scores higher than a randomly chosen human one.
+0.5 is a coin. The same run reports the shipped rules' densities on both corpora
+from this branch and from `main`, so a rule change and the read can be judged in
+one place against one baseline.
+
+### What has been measured
+
+**The rules half only.** No key was available in the environment that built the
+instrument, so the model half has not run. The rules half has:
+
+| corpus                | FAIL per 1k | WARN per 1k | blocked |
+| --------------------- | ----------- | ----------- | ------- |
+| human (24 docs)       | 0.07        | 9.25        | 4 of 24 |
+| machine drafts (6)    | **0.00**    | **1.67**    | 0 of 6  |
+
+The shipped rules do not separate the classes on this corpus; they lean the
+wrong way, because most of the human WARNs are typography and `often`. Read
+against study 1, that is the expected result stated in a new unit: the lexical
+tells are gone from current raw output, and what remains is the rhythm.
+
+### What must be true before a number is quoted
+
+- The machine corpus is six passages by one author on one day. It proves that
+  the read can be run and that the rules miss these drafts. It cannot support a
+  detection rate, an AUC, or a threshold. Bring a corpus with `--machine DIR`.
+- The human corpus is the false-positive corpus, formal and old. A texture score
+  that calls Thoreau "uniform" is a finding about the score, and the harness
+  would show it; a low AUC there is as informative as a high one.
+- The model half costs money. At the published rate it is on the order of a
+  tenth of a dollar for both committed corpora, and the harness caches every
+  judgment by text and question hash so a rerun is free.
