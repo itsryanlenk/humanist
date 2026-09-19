@@ -1,0 +1,51 @@
+[
+ {
+  "file": "A01_essay_reading-goals.md",
+  "register": "essay",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~400-word personal essay about why you stopped setting yearly reading goals.",
+  "edits": "none; raw first draft",
+  "note": "Machine-drafted. Companion to tests/fp-corpus, which is known-human. Provenance is the point of this file, and the prose is what a raw draft looks like before any stage of the pipeline."
+ },
+ {
+  "file": "A02_howto_ssh-keys.md",
+  "register": "howto",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~400-word how-to on setting up SSH keys for GitHub.",
+  "edits": "two strings shaped like email addresses (the key comment and the test address) were replaced so the repository's privacy gate stays meaningful; otherwise a raw first draft"
+ },
+ {
+  "file": "A03_marketing_scheduling-app.md",
+  "register": "marketing",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~350-word product landing page for a fictional team scheduling app.",
+  "edits": "none; raw first draft. The product and the quoted customer are invented."
+ },
+ {
+  "file": "A04_email_project-update.md",
+  "register": "email",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~350-word internal status-update email about a platform migration.",
+  "edits": "none; raw first draft. All figures and the sender are invented."
+ },
+ {
+  "file": "A05_review_kettle.md",
+  "register": "review",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~400-word product review of an electric gooseneck kettle.",
+  "edits": "none; raw first draft"
+ },
+ {
+  "file": "A06_social_learning-in-public.md",
+  "register": "social",
+  "author": "coding agent (Claude), unassisted",
+  "generated": "2026-09-19",
+  "prompt": "Write a ~300-word social post listing what you learned from a year of learning to code in public.",
+  "edits": "none; raw first draft"
+ }
+]
