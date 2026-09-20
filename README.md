@@ -171,6 +171,9 @@ plugins/humanist/skills/humanist/
     config.example.json   worked configuration examples
     tools/html2prose.py   CMS body HTML to checker-ready text
     third_party/humanizer/  the rewrite pass, vendored (MIT + CC BY-SA, see below)
+plugins/humanist/skills/ship-gate/
+    SKILL.md              the release gate: every gate runs, or the draft is NOT READY
+    adversary.md          the red-team brief handed to the adversary subagent
 app/
     inkwash.html          the sanitizer, single file, offline
     test-inkwash.mjs      39 engine tests

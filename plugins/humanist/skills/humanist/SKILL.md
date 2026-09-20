@@ -145,6 +145,14 @@ genuinely be unsure, leave one objection standing, and put in the specifics only
 author has. None of that is checkable by machine, all of it is what a reader
 notices, and the author has to supply it.
 
+### Before it ships
+
+These three steps improve how the draft reads. None of them checks whether its
+claims are right. Before anything goes public, run the `ship-gate` skill
+(`../ship-gate/SKILL.md`). It adds an adversary pass on the claims, a re-measure
+after fixes, and a render check, and it will not call a draft ready while any gate
+is unrun.
+
 ## The five laws
 
 The deepest family of tells is a sentence _about_ the material instead of the
